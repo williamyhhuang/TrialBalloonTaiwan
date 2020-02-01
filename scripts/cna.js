@@ -106,15 +106,14 @@ function cna(url) {
 async function crawler(host, number) {
   try {
     let urls = await func.getCnaUrl(host, number);
-    // console.log('urls',urls);
-    // for (let i = 0; i < urls.length; i++) {
-    //   let checkUrlResult = await db.checkUrl(urls[i]);
-    //   if (checkUrlResult.length == 0) {
-    //     cna(urls[i]);
-    //   } else {
-    //     console.log('this news has exsist: ', urls[i])
-    //   }
-    // }
+    for (let i = 0; i < urls.length; i++) {
+      let checkUrlResult = await db.checkUrl(urls[i]);
+      if (checkUrlResult.length == 0) {
+        cna(urls[i]);
+      } else {
+        console.log('this news has exsist: ', urls[i])
+      }
+    }
   } catch (e) {
     console.log('err from cna crawler', e)
   }
