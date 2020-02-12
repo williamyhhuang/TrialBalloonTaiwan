@@ -1,0 +1,14 @@
+doctype html
+html
+  head
+    title Trial Balloon Taiwan
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body
+    div(class='header')
+      div(class='categories')
+        div(class='category' id='cat_news' onclick='redirectNews()') 新聞比一比
+        div(class='category' id='cat_media' onclick='redirectMedia()') 報社比一比
+        div(class='category' id='cat_reporter' onclick='redirectReporter()') 記者比一比
+      div(class='member') YH
+    block content
+  script(src="/javascripts/function.js")

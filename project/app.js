@@ -5,14 +5,21 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var cna = require('./scripts/cna');
-var chtimes = require('./scripts/chtimes');
+var newsRouter = require('./routes/news')
+var mediaRouter = require('./routes/media')
+var reporterRouter = require('./routes/reporter')
+var newsSearchRouter = require('./routes/newsSearch')
+var mediaSearchRouter = require('./routes/mediaSearch')
+var reporterSearchRouter = require('./routes/reporterSearch')
+var newsApiRouter = require('./routes/api/newsApi')
+var mediaApiRouter = require('./routes/api/mediaApi')
+var reporterApiRouter = require('./routes/api/reporterApi')
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -22,6 +29,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/news', newsRouter);
+app.use('/media', mediaRouter);
+app.use('/reporter', reporterRouter);
+app.use('/search/news', newsSearchRouter);
+app.use('/search/media', mediaSearchRouter);
+app.use('/search/reporter', reporterSearchRouter);
+app.use('/api/news', newsApiRouter);
+app.use('/api/media', mediaApiRouter);
+app.use('/api/reporter', reporterApiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -43,17 +59,5 @@ app.listen(3000, () => {
   console.log('The server is running on port 3000!');
 });
 
-function webCrawler(){
-  schedule.scheduleJob(' * */1 * * *', function(){
-      cna();
-      chtimes();
-  }); 
-}
-let chtimesAll = 'https://www.chinatimes.com/search/%E6%94%BF%E6%B2%BB?';
-let chtimesPolitic = 'https://www.chinatimes.com/politic/total?';
-let cnaAll = 'https://www.cna.com.tw/list/aipl.aspx';
-let cnaPolitic = 'https://www.cna.com.tw/cna2018api/api/simplelist/categorycode/aipl/pageidx/';
-// chtimes(chtimesAll)
-cna(cnaAll);
 
 module.exports = app;

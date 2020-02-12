@@ -1,2 +1,7 @@
-/node_modules
-/util
+/project/node_modules
+/project/util
+/webCrawing/node_modules
+/webCrawing/util
+.env
+AppWorks School Project-2af1dcb7290c.json
+personal_project_20200121.key
