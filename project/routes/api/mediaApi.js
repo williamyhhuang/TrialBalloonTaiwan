@@ -64,7 +64,7 @@ function news(media, input, start, end) {
     for (let i = 0; i < input.length; i++) {
       sql += ` AND a.article LIKE '%${input[i]}%'`
     }
-    sql += ` AND TO_DAYS(n.date)>= TO_DAYS('${start}') AND TO_DAYS(n.date) <= TO_DAYS('${end}')`;
+    sql += ` AND TO_DAYS(n.date)>= TO_DAYS('${start}') AND TO_DAYS(n.date) <= TO_DAYS('${end}') ORDER by n.date`;
 
     switch (media) {
       case 'cna':
