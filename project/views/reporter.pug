@@ -9,19 +9,24 @@ block content
         div(style='display: flex')
           div(id='one_reporter_media')
             div(id='media') 報社 - 記者 :
-            input(id='media1' type='text' placeholder='報社一')
-            p(style='margin:0px;color:gray') -
-            input(id='reporter1' type='text' placeholder='記者一')
-            p(style='margin:0px') |
-            input(id='media2' type='text' placeholder='報社二')
-            p(style='margin:0px; color:gray') -
-            input(id='reporter2' type='text' placeholder='記者二')
-        //- div(style='display: flex')  
-        //-   div(id='one_reporter_media')
-        //-     div(id='media' style='color:white;') 報社 - 記者 :    
-        //-     input(id='media2' type='text' placeholder='報社二')
-        //-     p(style='margin:0px; color:gray') -
-        //-     input(id='reporter2' type='text' placeholder='記者二')
+            select(id='mediaSelect1' onchange='change("mediaSelect1","reporterSelect1")')
+              option(value='cna' selected) 中央社
+              option(value='chtimes') 中時電子報
+              option(value='ltn') 自由電子報
+            select(id='reporterSelect1')
+            p(style='margin:0px; line-height:30px;') VS 
+            select(id='mediaSelect2' onchange='change("mediaSelect2","reporterSelect2")')
+              option(value='cna' selected) 中央社
+              option(value='chtimes') 中時電子報
+              option(value='ltn') 自由電子報
+            select(id='reporterSelect2') 
+            //- input(id='media1' type='text' placeholder='報社一' required)
+            //- p(style='margin:0px;color:gray') -
+            //- input(id='reporter1' type='text' placeholder='記者一' required)
+            //- p(style='margin:0px') |
+            //- input(id='media2' type='text' placeholder='報社二' required)
+            //- p(style='margin:0px; color:gray') -
+            //- input(id='reporter2' type='text' placeholder='記者二' required)
       div(style='display:flex;font-size:20px;margin-left:20px;') 關鍵字 :
         input(type="text" id='input' name='input' placeholder='請輸入關鍵字' required)
       //- img(src='/images/search.png')
@@ -30,5 +35,5 @@ block content
           input(type="date" id='start_date' name='start' required)
           p(style='margin:0px 10px 0px 0px;') ~
           input(type="date" id='end_date' name='end'  required) 
-    button(type='button' class='search' onclick='searchReporter(this.form)') 搜尋
+    button(type='button' class='search' onclick='searchReporter()') 搜尋 
   script(src="/javascripts/function.js")

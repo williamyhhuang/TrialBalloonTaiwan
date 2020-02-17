@@ -7,6 +7,10 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 const db = require('./webCrawler_db');
+const nodejieba = require('nodejieba');
+const gmail = require('./gmail');
+nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
+
 
 async function selectAuthor(list, text) {
 
@@ -41,31 +45,96 @@ async function selectAuthor(list, text) {
   return author.join('')
 }
 
-function ltnSelectAuthor(text) {
-  let string = text.substring(0, 200).trim();
-  let author;
-  if (string.indexOf('即時新聞') > 0) {
-    author = '即時新聞';
-  } else if (string.indexOf('譯') > 0) {
-    let start = string.indexOf('譯');
-    let end = string.indexOf('／');
-    author = string.slice(start + 1, end);
-    author = author.split('、');
-  } else if (string.indexOf('者') > 0) {
-    let start = string.indexOf('者');
-    let end = string.indexOf('／');
-    author = string.slice(start + 1, end);
-    author = author.split('、');
-  } else if (string.indexOf('員') > 0) {
-    let start = string.indexOf('員');
-    let end = string.indexOf('／');
-    author = string.slice(start + 1, end);
-    author = author.split('、');
-  } else {
-    author = 'ltn'
-    author = author.split('、');
-  }
-  return author;
+function cnaSelectAuthor(list, string) {
+  return new Promise((resolve, reject) => {
+    let author;
+    string = string.trim();
+    author = nodejieba.cut(string);
+    let start;
+    let end;
+    start = author.indexOf('記者');
+
+    let number = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let index3;
+    for (let j = 0; j < number.length; j++) {
+      index3 = author.indexOf(number[j]);
+    }
+    for (let i = 0; i < list.length; i++) {
+      let index1 = author.indexOf(list[i]);
+      let index2 = author.indexOf('專電');
+      if (index1 >= 0) {
+        end = index1;
+        // break;
+      } else if (index2 >= 0) {
+        end = index2;
+      } else if (index3 >= 0) {
+        end = index3;
+      }
+    }
+    // console.log(start, end)
+    author = author.slice(start + 1, end);
+    author = author.join('');
+    resolve(author);
+  })
+}
+
+function ltnSelectAuthor(list, text) {
+  return new Promise((resolve, reject) => {
+    let string = text.substring(0, 100).trim();
+    let author;
+    author = nodejieba.cut(string);
+
+    if (string.indexOf('即時新聞') >= 0) {
+      author = '即時新聞';
+    } else if (string.indexOf('財經頻道') >= 0) {
+      author = '財經頻道';
+    } else if (string.indexOf('中央社') >= 0) {
+      author = '中央社';
+    } else if (author.indexOf('記者') >= 0) {
+      let start = author.indexOf('記者');
+      let end = author.indexOf('／');
+      author = author.slice(start + 1, end);
+      author = author.join('');
+    } else if (author.indexOf('編譯') >= 0) {
+      let start = author.indexOf('編譯');
+      let end = author.indexOf('／');
+      author = author.slice(start + 1, end);
+      author = author.join('');
+    } else if (author.indexOf('特派員') >= 0) {
+      let start = author.indexOf('特派員');
+      let end = author.indexOf('／');
+      author = author.slice(start + 1, end);
+      author = author.join('');
+    } else {
+      author = 'ltn';
+    }
+    // if (string.indexOf('即時新聞') >= 0) {
+    //   author = '即時新聞';
+    //   author = author.split('、');
+    // } else if (string.indexOf('譯') >= 0) {
+    //   let start = string.indexOf('譯');
+    //   let end = string.indexOf('／');
+    //   author = string.slice(start + 1, end);
+    //   author = author.split('、');
+    // } else if (string.indexOf('者') >= 0) {
+    //   let start = string.indexOf('者');
+    //   let end =string.indexOf('／');
+    //   author = string.slice(start + 1, end);
+    //   author = author.split('、');
+    // } else if (string.indexOf('員') >= 0) {
+    //   let start = string.indexOf('員');
+    //   let end = string.indexOf('／');
+    //   author = string.slice(start + 1, end);
+    //   author = author.split('、');
+    // } else if (string.indexOf('／') == -1) {
+    //   author = 'ltn'
+    //   author = author.split('、');
+    // } else {
+    //   author = 'ltn'
+    //   author = author.split('、');
+    // }
+    resolve(author);
+  })
 }
 
 async function analyzeArticle(text) {
@@ -146,13 +215,25 @@ function getChtimesUrl(host, number) {
       const $ = cheerio.load(body);
       $('.col .title a').each(function () {
         let link = $(this).attr('href');
+        if (link.indexOf('https://www.chinatimes.com') == -1) {
+          link = 'https://www.chinatimes.com' + link;
+        }  
         links.push(link)
       });
+
+      for (let i = 0; i < links.length; i++) {
+        if (links[i] == 'https://www.chinatimes.com') {
+          links[i] = ''
+          console.log('i got it')
+        }
+      }
+
       links.forEach((ele, i, arr) => {
         if (ele.indexOf('260407') == -1) {
           arr[i] = ''
         }
       })
+      // console.log(number, links)
       resolve(links);
     })
   })
@@ -213,16 +294,15 @@ function getLtnUrlNew(host) {
         headless: true
       });
       const page = await browser.newPage();
-      await page.goto(host, {
-        timeout: 0
-      });
-      await page.setViewport({
-        width: 1200,
-        height: 800
-      });
-
-      // const href = await page.$$eval('.tit', e => e.map((a) => a.href));
-      // resolve(href);
+      await Promise.race([
+        await page.goto(host, {
+          timeout: 0
+        }),
+      ])
+      // await page.setViewport({
+      //   width: 1200,
+      //   height: 800
+      // });
 
       await autoScroll(page)
         .then(async () => {
@@ -231,7 +311,8 @@ function getLtnUrlNew(host) {
           resolve(href);
         })
     } catch (e) {
-      console.log('error from gettin  ltn url: ', e);
+      console.log('error from gettin ltn url: ', e);
+      func.sendEmail('yhhuang1992@gmail.com');
     }
   })
 }
@@ -258,25 +339,52 @@ async function autoScroll(page) {
 function execute(newsDataPromise) {
   return new Promise((resolve, reject) => {
     setTimeout(function () {
-      Promise.all(newsDataPromise)
-        .then(newsData => {
-          let insertDataPromise = []
-          for (let i = 0; i < newsData.length; i++) {
-            insertDataPromise.push(db.insert(newsData[i]));
-          }
-          Promise.all(insertDataPromise).catch(e => {
-            console.log('error from insertDataPromise', e)
+      resolve(
+        Promise.all(newsDataPromise)
+          .then(newsData => {
+            let insertDataPromise = []
+            for (let i = 0; i < newsData.length; i++) {
+              insertDataPromise.push(db.insert(newsData[i]));
+            }
+            Promise.all(insertDataPromise).catch(e => {
+              console.log('error from insertDataPromise', e)
+            })
+          }).catch(error => {
+            console.log('error from newsDataPromise', error)
           })
-        }).catch(error => {
-          console.log('error from newsDataPromise', error)
-        })
-      resolve();
+      );
     }, 10000)
   })
 }
 
+// 寄信給使用者
+function sendEmail(email) {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: gmail.user,
+        pass: gmail.password
+      }
+    })
+    const mailOptions = {
+      from: gmail.user,
+      to: email,
+      subject: 'TBT爬蟲出現問題',
+      text: 'TBT爬蟲程式出現問題，請前往查看'
+    };
+    transporter.sendMail(mailOptions, (err, data) => {
+      if (err) {
+        console.log(err);
+      }
+      return console.log('Email發送OK');
+    });
+}
+
 module.exports = {
   selectAuthor: selectAuthor,
+  cnaSelectAuthor: cnaSelectAuthor,
   ltnSelectAuthor: ltnSelectAuthor,
   analyzeArticle: analyzeArticle,
   analyzeEntities: analyzeEntities,
@@ -285,5 +393,6 @@ module.exports = {
   getCnaUrl: getCnaUrl,
   getLtnUrl: getLtnUrl,
   getLtnUrlNew: getLtnUrlNew,
-  execute: execute
+  execute: execute,
+  sendEmail: sendEmail
 };

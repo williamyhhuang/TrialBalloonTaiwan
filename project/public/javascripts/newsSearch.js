@@ -219,8 +219,8 @@ function createChart(chart, data) {
           type: 'linear',
           position: 'left',
           ticks: {
-            max: 1,
-            min: -1
+            max: 0.5,
+            min: -0.5
           },
           scaleLabel: {
             display: true,
@@ -286,8 +286,8 @@ function createScoreChart(chart, data) {
           type: 'linear',
           position: 'left',
           ticks: {
-            max: 1,
-            min: -1
+            max: 0.5,
+            min: -0.5
           },
           scaleLabel: {
             display: true,

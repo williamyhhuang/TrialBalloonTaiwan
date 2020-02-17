@@ -54,7 +54,8 @@ function insertKeyword(connect, keyword, newsId) {
     let insertKeywordsSql = `INSERT INTO tbt.keyword SET ?`
     let insertKeywordsPost = {
       keyword: keyword,
-      news_id: newsId
+      news_id: newsId,
+      add_in_dict: 'no'
     }
     connect.query(insertKeywordsSql, insertKeywordsPost, function (insertKeywordsErr, insertKeywordsResult) {
       if (insertKeywordsErr) {
@@ -66,7 +67,7 @@ function insertKeyword(connect, keyword, newsId) {
   })
 }
 
-function getReporterId(connect, author) {
+function getReporterId(connect, author, media) {
   return new Promise((resolve, reject) => {
     let selectReporterSql = `SELECT id FROM reporter WHERE name = '${author}'`;
     connect.query(selectReporterSql, function (selectReporterErr, selectReporterResult) {
@@ -79,7 +80,8 @@ function getReporterId(connect, author) {
       } else {
         let insertReporterSql = `INSERT INTO tbt.reporter SET ?`;
         let insertReporterPost = {
-          name: author
+          name: author,
+          media: media
         }
         connect.query(insertReporterSql, insertReporterPost, function (insertReporterErr, insertReporterResult) {
           if (insertReporterErr) {
@@ -163,10 +165,8 @@ function insert(data) {
     // 新增至資料庫
     mysql.getConnection(function (err, connect) {
       if (err) {
-        res.send(err);
-        connect.rollback(function () {
+        console.log(err);
           connect.release();
-        });
       }
       connect.beginTransaction(async function (err) {
         if (err) {
@@ -184,7 +184,7 @@ function insert(data) {
                 }
                 for (let i = 0; i < author.length; i++) {
                   author[i] = author[i].trim();
-                  let reporterId = await getReporterId(connect, author[i])
+                  let reporterId = await getReporterId(connect, author[i], media)
                   await insertReporterNews(connect, reporterId, newsId);
                 } 
               }catch(e){
@@ -220,7 +220,7 @@ function insert(data) {
                   });
                   console.log('err from commit',err)
                 }
-                console.log('success message from adding news: ', title);
+                console.log(media,' success message from adding news: ', title);
                 resolve();
                 connect.release();
               });

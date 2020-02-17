@@ -13,7 +13,8 @@ var mediaSearchRouter = require('./routes/mediaSearch')
 var reporterSearchRouter = require('./routes/reporterSearch')
 var newsApiRouter = require('./routes/api/newsApi')
 var mediaApiRouter = require('./routes/api/mediaApi')
-var reporterApiRouter = require('./routes/api/reporterApi')
+var reporterApiRouter = require('./routes/api/reporterApi');
+var selectReporterApiRouter = require('./routes/api/selectReporter');
 
 var app = express();
 
@@ -38,6 +39,7 @@ app.use('/search/reporter', reporterSearchRouter);
 app.use('/api/news', newsApiRouter);
 app.use('/api/media', mediaApiRouter);
 app.use('/api/reporter', reporterApiRouter);
+app.use('/api/selectReporter', selectReporterApiRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

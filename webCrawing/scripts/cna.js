@@ -1,38 +1,13 @@
+require('dotenv').config();
+const email = process.env.EMAIL;
 const request = require('request');
 const cheerio = require('cheerio');
-const mysql = require('../util/mysqlcon');
 const func = require('./webCrawler/webCrawler_func');
 const db = require('./webCrawler/webCrawler_db');
 const nodejieba = require("nodejieba");
+const cityList = require('./webCrawler/localName');
 nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
 
-let cityList = [
-  '台北',
-  '新北',
-  '桃園',
-  '新竹',
-  '苗栗',
-  '台中',
-  '彰化',
-  '雲林',
-  '嘉義',
-  '台南',
-  '高雄',
-  '屏東',
-  '台東',
-  '花蓮',
-  '宜蘭',
-  '香港',
-  '華盛頓',
-  '洛杉磯',
-  '布魯塞爾',
-  '東京',
-  '多倫多',
-  '羅馬',
-  '倫敦',
-  '舊金山',
-  '柏林',
-];
 let exceptKeywords = [
   '中央社',
   '中常委',
@@ -56,9 +31,21 @@ function cna(url) {
         // 新聞本體
         let article = $('.paragraph p').text();
         // 新聞記者
-        let string = article.substring(1, 20);
-        let author = await func.selectAuthor(cityList, string);
+        let string = article.substring(1, 30);
+        let author = await func.cnaSelectAuthor(cityList, string);
         author = author.split('、');
+        let number = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        for (let i = 0; i < author.length; i++) {
+          if (author[i].length >= 4) {
+            author[i] = await func.cnaSelectAuthor(cityList, author[i]);
+          }
+          for (let j = 0; j < number.length; j++) {
+            let index = author[i].indexOf(number[j]);
+            if (index >= 0) {
+              author[i] = author[i].slice(0, index)
+            }
+          }
+        }
 
         let analyzeArticleResult = await func.analyzeArticle(article);
         let keywords = await func.analyzeEntities(article);
@@ -91,12 +78,18 @@ function cna(url) {
 
 async function webCrawlingNew(host) {
   try {
+    console.log('cna web crawling new start')
     let dbUrls = await db.getDbUrl('cna');
 
-    for (let i = 1; i < 5; i++) {
+    for (let i = 1; i < 6; i++) {
       console.log('cna web-crawling new in page ' + i);
 
       let links = await func.getCnaUrl(host, i);
+
+      // 消除重複的連結和空字串
+      links = new Set(links);
+      links = [...links];
+      links.filter(ele => ele != '');
 
       // 若DB已有該新聞，則刪除該連結
       for (let i = 0; i < dbUrls.length; i++) {
@@ -107,13 +100,18 @@ async function webCrawlingNew(host) {
       }
 
       // 消除重複的連結和空字串
-      links = new Set(links);
-      links = [...links];
-      for (let i=0;i<links.length;i++){
-        let index = links.indexOf('');
-        if (index>=0){
-          index.splice(index, 1);
-        }
+      // links = new Set(links);
+      // links = [...links];
+      // for (let i = 0; i < links.length; i++) {
+      //   let index = links.indexOf('');
+      //   if (index >= 0) {
+      //     index.splice(index, 1);
+      //   }
+      // }
+
+      if (links.length == 0) {
+        console.log('page ', i, ' there is no cna news has to add.')
+        continue;
       }
 
       for (let i = 0; i < links.length; i++) {
@@ -137,6 +135,7 @@ async function webCrawlingNew(host) {
     }
   } catch (e) {
     console.log(e)
+    func.sendEmail(email);
   }
 }
 
@@ -144,7 +143,7 @@ async function webCrawlingAll(host) {
   try {
     let dbUrls = await db.getDbUrl('cna');
 
-    for (let i = 40; i < 60; i++) {
+    for (let i = 1; i < 111; i++) {
 
       console.log('cna web-crawling all in page ' + i);
 
@@ -156,6 +155,12 @@ async function webCrawlingAll(host) {
           links.splice(index, 1)
         }
       }
+
+      if (links.length == 0) {
+        console.log('page ', i, ' there is no cna news has to add.')
+        continue;
+      }
+
       for (let i = 0; i < links.length; i++) {
         dbUrls.push(links[i]);
       }

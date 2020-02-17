@@ -1,30 +1,13 @@
+require('dotenv').config();
+const email = process.env.EMAIL;
 const request = require('request');
 const cheerio = require('cheerio');
 const func = require('./webCrawler/webCrawler_func');
 const db = require('./webCrawler/webCrawler_db');
 const nodejieba = require("nodejieba");
+const cityList = require('./webCrawler/localName');
 nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
 
-let cityList = [
-  '台北',
-  '新北',
-  '桃園',
-  '新竹',
-  '苗栗',
-  '台中',
-  '彰化',
-  '雲林',
-  '嘉義',
-  '台南',
-  '高雄',
-  '屏東',
-  '台東',
-  '花蓮',
-  '宜蘭',
-  '香港',
-  '華盛頓',
-  '洛杉磯',
-];
 let exceptKeywords = [
   '中央社',
   '中常委',
@@ -54,7 +37,13 @@ function ltn(url) {
         let articleLength = $('.whitecon p').length;
         let article = $('.whitecon p').slice(1, articleLength - 1).text();
         // 新聞記者
-        let authors = func.ltnSelectAuthor(article);
+        let authors = await func.ltnSelectAuthor(cityList, article);
+        authors = authors.split('、');
+        for (let i = 0; i < authors.length; i++) {
+          if (authors[i].length >= 4) {
+            authors[i] = await func.ltnSelectAuthor(cityList, authors[i]);
+          }
+        }
 
         let analyzeArticleResult = await func.analyzeArticle(article);
         let keywords = await func.analyzeEntities(article);
@@ -103,14 +92,38 @@ async function crawler(host, startTime, endTime) {
               links.splice(index, 1)
             }
           }
+
+          if (links.length == 0) {
+            console.log('page ', page, 'there is no ltn news has to add.');
+            page = page + 1;
+            continue;
+          }
+
           for (let i = 0; i < links.length; i++) {
             dbUrls.push(links[i]);
           }
 
           let newsDataPromise = [];
+          for (let i = 0; i < (Math.floor((links.length) / 20) + 1); i++) {
+            newsDataPromise[i] = [];
+          }
+
+          for (let i = 0; i < links.length; i++) {
+            let index = Math.floor(i / 20);
+            newsDataPromise[index].push(ltn(links[i]));
+          }
+
+          for (let j = 0; j < newsDataPromise.length; j++) {
+            console.log('ltn all total length', newsDataPromise.length, 'now is: ', j + 1)
+            await func.execute(newsDataPromise[j]);
+          }
+
+          /*
+          let newsDataPromise = [];
           for (let i = 0; i < links.length; i++) {
             newsDataPromise.push(ltn(links[i]));
           }
+          
           Promise.all(newsDataPromise)
             .then(newsData => {
               let insertDataPromise = []
@@ -123,7 +136,7 @@ async function crawler(host, startTime, endTime) {
             }).catch(error => {
               console.log(error)
             })
-
+*/
           page = page + 1;
         }
       } while (enough == false)
@@ -170,10 +183,16 @@ async function webCrawlingAll(host, start, end) {
 
 async function webCrawingNew(host) {
   try {
+    console.log('ltn web crawling new start')
+    let links = await func.getLtnUrlNew(host);
     let dbUrls = await db.getDbUrl('ltn');
 
+    // 消除重複的連結和空字串
+    links = new Set(links);
+    links = [...links];
+    links.filter(ele => ele != '');
+
     // 若DB已有該新聞，則刪除該連結
-    let links = await func.getLtnUrlNew(host);
     for (let i = 0; i < dbUrls.length; i++) {
       let index = links.indexOf(dbUrls[i]);
       if (index >= 0) {
@@ -181,14 +200,9 @@ async function webCrawingNew(host) {
       }
     }
 
-    // 消除重複的連結和空字串
-    links = new Set(links);
-    links = [...links];
-    for (let i = 0; i < links.length; i++) {
-      let index = links.indexOf('');
-      if (index >= 0) {
-        index.splice(index, 1);
-      }
+    if (links.length == 0) {
+      console.log('there is no ltn news has to add.');
+      return;
     }
 
     for (let i = 0; i < links.length; i++) {
@@ -212,6 +226,7 @@ async function webCrawingNew(host) {
 
   } catch (e) {
     console.log('error from webCrawlingNew', e)
+    func.sendEmail(email);
   }
 }
 

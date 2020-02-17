@@ -1,31 +1,15 @@
+require('dotenv').config();
+const email = process.env.EMAIL;
 const request = require('request');
 const cheerio = require('cheerio');
-const mysql = require('../util/mysqlcon');
 const func = require('./webCrawler/webCrawler_func');
 const db = require('./webCrawler/webCrawler_db');
 const nodejieba = require("nodejieba");
+const nodemailer = require('nodemailer');
+const cityList = require('./webCrawler/localName');
+
 nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
 
-let cityList = [
-  '台北',
-  '新北',
-  '桃園',
-  '新竹',
-  '苗栗',
-  '台中',
-  '彰化',
-  '雲林',
-  '嘉義',
-  '台南',
-  '高雄',
-  '屏東',
-  '台東',
-  '花蓮',
-  '宜蘭',
-  '香港',
-  '華盛頓',
-  '洛杉磯',
-];
 let exceptKeywords = [
   '中央社',
   '中常委',
@@ -34,9 +18,9 @@ let exceptKeywords = [
 ]
 
 function chtimes(url) {
-  if (url.indexOf('https://www.chinatimes.com') < 0) {
-    url = 'https://www.chinatimes.com' + url;
-  }
+  // if (url.indexOf('https://www.chinatimes.com') < 0) {
+  //   url = 'https://www.chinatimes.com' + url;
+  // }
   return new Promise((resolve, reject) => {
     request(url, async (err, response, body) => {
       if (err) throw err;
@@ -102,12 +86,22 @@ async function crawler(host, number) {
 
 async function webCrawlingNew(host) {
   try {
+    console.log('chtimes web crawling new start')
     let dbUrls = await db.getDbUrl('chtimes');
-    for (let i = 1; i < 10; i++) {
+    for (let i = 1; i < 11; i++) {
       console.log('chtimes web-crawling new in page ' + i);
-
       let links = await func.getChtimesUrl(host, i);
 
+      // 消除重複的連結和空字串
+      links = new Set(links);
+      links = [...links];
+      links.filter(ele => ele != 'https://www.chinatimes.com');
+      for (let i = 0; i < links.length; i++) {
+        let index = links.indexOf('');
+        if (index >= 0) {
+          links.splice(index, 1);
+        }
+      }
       // 若DB已有該新聞，則刪除該連結
       for (let i = 0; i < dbUrls.length; i++) {
         let index = links.indexOf(dbUrls[i]);
@@ -116,14 +110,9 @@ async function webCrawlingNew(host) {
         }
       }
 
-      // 消除重複的連結和空字串
-      links = new Set(links);
-      links = [...links];
-      for (let i = 0; i < links.length; i++) {
-        let index = links.indexOf('');
-        if (index >= 0) {
-          links.splice(index, 1);
-        }
+      if (links.length == 0) {
+        console.log('page ', i, 'there is no chtimes news has to add.')
+        continue;
       }
 
       for (let i = 0; i < links.length; i++) {
@@ -147,17 +136,24 @@ async function webCrawlingNew(host) {
 
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
+    func.sendEmail(email);
   }
 }
 
 async function webCrawlingAll(host) {
   try {
     let dbUrls = await db.getDbUrl('chtimes');
-    for (let i = 10; i < 30; i++) {
+    for (let i = 1; i < 26; i++) {
       console.log('chtimes web-crawling all in page ' + i);
 
       let links = await func.getChtimesUrl(host, i);
+
+      // 消除重複的連結和空字串
+      links = new Set(links);
+      links = [...links];
+      links.filter(ele => ele != '');
+      links.filter(ele => ele != 'https://www.chinatimes.com');
 
       for (let i = 0; i < dbUrls.length; i++) {
         let index = links.indexOf(dbUrls[i]);
@@ -165,6 +161,12 @@ async function webCrawlingAll(host) {
           links.splice(index, 1)
         }
       }
+
+      if (links.length == 0) {
+        console.log('page ', i, 'there is no chtimes news has to add.')
+        continue;
+      }
+
       for (let i = 0; i < links.length; i++) {
         dbUrls.push(links[i]);
       }

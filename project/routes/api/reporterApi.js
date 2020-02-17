@@ -28,19 +28,31 @@ router.get('/', async function (req, res, next) {
       let result1 = media(start, end, reporter1Result);
       let result2 = media(start, end, reporter2Result);
 
-      let result = {
-        reporter1: result1,
-        reporter2: result2
-      }
+      let result1Day = mediaDay(start, end, reporter1Result);
+      let result2Day = mediaDay(start, end, reporter2Result);
 
-      res.json({
-        keyword: input,
-        reporter1: [media1, reporter1],
-        reporter2: [media2, reporter2],
-        start: start,
-        end: end,
-        result: result
-      })
+      if (reporter1Result == false && reporter2Result == false) {
+        res.json({
+          keyword: input,
+          start: start,
+          end: end,
+          result: false
+        })
+      } else {
+        let result = {
+          reporter1: [result1, result1Day],
+          reporter2: [result2, result2Day]
+        }
+
+        res.json({
+          keyword: input,
+          reporter1: [media1, reporter1],
+          reporter2: [media2, reporter2],
+          start: start,
+          end: end,
+          result: result
+        })
+      }
 
     })
   }
@@ -56,7 +68,7 @@ function news(media, input, start, end, name) {
     for (let i = 0; i < input.length; i++) {
       sql += ` AND a.article LIKE '%${input[i]}%'`
     }
-    sql += ` AND TO_DAYS(n.date)>= TO_DAYS('${start}') AND TO_DAYS(n.date) <= TO_DAYS('${end}')`;
+    sql += ` AND TO_DAYS(n.date)>= TO_DAYS('${start}') AND TO_DAYS(n.date) <= TO_DAYS('${end}') ORDER by n.date`;
 
     switch (media) {
       case 'cna':
@@ -145,6 +157,68 @@ function category(start, end) {
   }
 }
 
+function category2(start, end) {
+  let startTime = new Date(start);
+  let endTime = new Date(end);
+  let s = String(startTime.getFullYear()) + (String(startTime.getMonth() + 1)) + String(startTime.getDate());
+  let e = String(endTime.getFullYear()) + (String(endTime.getMonth() + 1)) + String(endTime.getDate());
+
+  let y = startTime.getFullYear();
+  let m = startTime.getMonth() + 1;
+  let d = startTime.getDate();
+
+  let t = [];
+  t[0] = String(startTime.getFullYear()) + '/' + String(startTime.getMonth() + 1) + '/' + String(startTime.getDate());
+
+  if (s == e) {
+    let result = {};
+    t.forEach(el => {
+      result[el] = {
+        news: [],
+        totalScore: 0,
+        totalMag: 0
+      };
+    })
+    return result;
+  } else {
+    let last;
+    do {
+      d = d + 1;
+      if (d == 32 && (m == 1 || m == 3 || m == 5 || m == 7 || m == 8 || m == 10 || m == 12)) {
+        d = d - 31;
+        m = m + 1;
+      } else if (d == 31 && (m == 4 || m == 6 || m == 9 || m == 11)) {
+        d = d - 30;
+        m = m + 1
+      } else if (d == 29 && m == 2) {
+        d = d - 28;
+        m = m + 1;
+      }
+      if (m == 13) {
+        m = m - 12;
+        y = y + 1;
+      }
+      let time = String(y) + String(m) + String(d);
+      // time = Number(time);
+      last = time;
+
+      t.push(String(y) + '/' + String(m) + '/' + String(d));
+    } while (last != e)
+
+    let result = {};
+    t.forEach(el => {
+      result[el] = {
+        news: [],
+        totalScore: 0,
+        totalMag: 0
+      };
+
+    })
+    return result;
+  }
+
+}
+
 function media(start, end, data) {
   if (data == false) {
     return false;
@@ -158,5 +232,38 @@ function media(start, end, data) {
       timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
     }
     return timeCat;
+  }
+}
+
+function mediaDay(start, end, data) {
+  if (data == false) {
+    return false;
+  } else {
+    let timeCat = category2(start, end);
+    for (let i = 0; i < data.length; i++) {
+      let time = new Date(data[i].date)
+      let t = String(time.getFullYear()) + '/' + String(time.getMonth() + 1) + '/' + String(time.getDate());
+      timeCat[t].news.push(data[i]);
+      timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
+      timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
+    }
+    return timeCat;
+    // let timeCat = {};
+    // for (let i = 0; i < data.length; i++) {
+    //   let time = new Date(data[i].date)
+    //   let t = String(time.getFullYear()) + '/' + (String(time.getMonth() + 1)) + '/' + String(time.getDate());
+    //   if (timeCat[t] == undefined) {
+    //     timeCat[t] = {
+    //       news: [],
+    //       totalScore: 0,
+    //       totalMag: 0
+    //     };
+    //   } else {
+    //     timeCat[t].news.push(data[i]);
+    //     timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
+    //     timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
+    //   }
+    // }
+    // return timeCat;
   }
 }

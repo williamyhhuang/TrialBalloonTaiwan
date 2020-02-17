@@ -3,11 +3,13 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var schedule = require('node-schedule');
+var CronJob = require('cron').CronJob;
 
 const ltn = require('./scripts/ltn');
 const chtimes = require('./scripts/chtimes');
 const cna = require('./scripts/cna');
+const updateDict = require('./scripts/updateDict');
+const updateTokenize = require('./scripts/updateTokenize');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -48,22 +50,62 @@ app.listen(5000, () => {
 });
 
 // 各報社爬蟲，每兩小時爬一次
-// let webCrawlingJob = schedule.scheduleJob(' * */2 * * *',async function () {
-//   await ltn.new('https://news.ltn.com.tw/list/breakingnews/politics')
-//     .then(async() => {
-//       await cna.new('https://www.cna.com.tw/cna2018api/api/simplelist/categorycode/aipl/pageidx/');
-//     })
-//     .then(async() => {
-//       await chtimes.new('https://www.chinatimes.com/politic/total?');
-//     })
-// })
+let webCrawlingJob = new CronJob('0 0 */2 * * *', async function () {
 
-  // ltn.new('https://news.ltn.com.tw/list/breakingnews/politics')
-  // ltn.all('https://news.ltn.com.tw/search?keyword=%E6%94%BF%E6%B2%BB','2019-12-01','2020-01-01');
-  // cna.new('https://www.cna.com.tw/cna2018api/api/simplelist/categorycode/aipl/pageidx/');
-  // cna.all('https://www.cna.com.tw/cna2018api/api/simplelist/searchkeyword/%E6%94%BF%E6%B2%BB/pageidx/');
-  chtimes.new('https://www.chinatimes.com/politic/total?')
-  // chtimes.all('https://www.chinatimes.com/search/%E6%94%BF%E6%B2%BB?')
+  try {
+    cna.new('https://www.cna.com.tw/cna2018api/api/simplelist/categorycode/aipl/pageidx/')
+    .then(async () => {
+      let t = await getTime();
+      console.log(t, 'cna new webCrawling is done');
+      return ltn.new('https://news.ltn.com.tw/list/breakingnews/politics')
+    })
+    .then(async () => {
+      let t = await getTime();
+      console.log(t, 'ltn new webCrawling is done');
+      return chtimes.new('https://www.chinatimes.com/politic/total?');
+    })
+    .then(async () => {
+      let t = await getTime();
+      console.log(t, 'chtimes new webCrawling is done');
+      console.log(t, 'all webcrawling new is done');
+    })
+  } catch (e) {
+    console.log(e)
+  }
+})
+
+webCrawlingJob.start();
+// chtimes.new('https://www.chinatimes.com/politic/total?');
+
+function getTime() {
+  return new Promise((resolve, reject) => {
+    let t = new Date();
+    let now = String(t.getFullYear()) + '-' + String((t.getMonth() + 1)) + '-' + String(t.getDate()) + ' ' + String(t.getHours()) + ':' + String(t.getMinutes()) + ':' + String(t.getSeconds());
+    resolve(now);
+  })
+}
+
+// 更新斷詞字典及及資料庫的斷詞欄位(article.tokenize)
+let updateDictJob = new CronJob('0 0 3 0 0 1', async function () {
+  try {
+    await updateDict()
+      .then(async () => {
+        return updateTokenize();
+      })
+      .then(async() => {
+        let t = await getTime();
+        console.log(t, 'updating dict and tokenize is done');
+      })
+  } catch (e) {
+    console.log(e);
+  }
+})
+
+updateDictJob.start();
+
+// ltn.all('https://news.ltn.com.tw/search?keyword=%E6%94%BF%E6%B2%BB','2019-12-01','2020-02-14');
+// cna.all('https://www.cna.com.tw/cna2018api/api/simplelist/searchkeyword/%E6%94%BF%E6%B2%BB/pageidx/');
+// chtimes.all('https://www.chinatimes.com/search/%E6%94%BF%E6%B2%BB?')
 
 
 module.exports = app;
