@@ -548,7 +548,7 @@ function createTable(media, data, source) {
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
     dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '30%';
+    dateDiv.style.width = '22%';
     dateDiv.style.padding = '2px 0px';
     let titleDiv = document.createElement('div');
     titleDiv.className = 'mediaTable';
