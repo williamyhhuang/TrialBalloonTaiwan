@@ -9,6 +9,7 @@ const puppeteer = require('puppeteer');
 const db = require('./webCrawler_db');
 const nodejieba = require('nodejieba');
 const gmail = require('./gmail');
+const nodemailer = require('nodemailer')
 nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
 
 
@@ -312,7 +313,7 @@ function getLtnUrlNew(host) {
         })
     } catch (e) {
       console.log('error from gettin ltn url: ', e);
-      func.sendEmail('yhhuang1992@gmail.com');
+      sendEmail('yhhuang1992@gmail.com');
     }
   })
 }
