@@ -6,7 +6,7 @@ const func = require('./webCrawler/webCrawler_func');
 const db = require('./webCrawler/webCrawler_db');
 const nodejieba = require("nodejieba");
 const cityList = require('./webCrawler/localName');
-nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
+nodejieba.load({ userDict: 'scripts/similarity/dict2.txt' });
 
 let exceptKeywords = [
   '中央社',

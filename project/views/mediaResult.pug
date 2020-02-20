@@ -1,8 +1,22 @@
 extends layout
 
 block content
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
-    script(src="/javascripts/mediaSearch.js")
-    div(id='hr')
-    div(id='loader')
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
+  script(src="/javascripts/mediaSearch.js")
+
+  div(id='hr')
+  form(class='re_research')
+    div(class='input')
+      div(style='display:flex;font-size:20px;margin-left:20px; width: 46%') 
+        div 關鍵字 :
+        input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格，例如 : 韓國瑜 火鍋' required)
+      div(id='date_input')
+        div(id='start_date_div') 搜尋日期 :
+          input(type="date" id='start_date' name='start' required)
+          p(style='margin:0px 10px 0px 0px;') ~
+          input(type="date" id='end_date' name='end'  required)
+    //- div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月 
+    button(type='button' class='search' style='margin: 10px auto;' onclick='searchMedia()') 重新搜尋  
+  div(id='loader')
+  div(id='content')

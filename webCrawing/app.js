@@ -74,19 +74,8 @@ let webCrawlingJob = new CronJob('0 0 */2 * * *', async function () {
   }
 })
 
-webCrawlingJob.start();
-// chtimes.new('https://www.chinatimes.com/politic/total?');
-
-function getTime() {
-  return new Promise((resolve, reject) => {
-    let t = new Date();
-    let now = String(t.getFullYear()) + '-' + String((t.getMonth() + 1)) + '-' + String(t.getDate()) + ' ' + String(t.getHours()) + ':' + String(t.getMinutes()) + ':' + String(t.getSeconds());
-    resolve(now);
-  })
-}
-
 // 更新斷詞字典及及資料庫的斷詞欄位(article.tokenize)
-let updateDictJob = new CronJob('0 0 3 0 0 1', async function () {
+let updateDictJob = new CronJob('0 0 3 * * 1', async function () {
   try {
     await updateDict()
       .then(async () => {
@@ -100,9 +89,15 @@ let updateDictJob = new CronJob('0 0 3 0 0 1', async function () {
     console.log(e);
   }
 })
-
+webCrawlingJob.start();
 updateDictJob.start();
-
+function getTime() {
+  return new Promise((resolve, reject) => {
+    let t = new Date();
+    let now = String(t.getFullYear()) + '-' + String((t.getMonth() + 1)) + '-' + String(t.getDate()) + ' ' + String(t.getHours()) + ':' + String(t.getMinutes()) + ':' + String(t.getSeconds());
+    resolve(now);
+  })
+}
 // ltn.all('https://news.ltn.com.tw/search?keyword=%E6%94%BF%E6%B2%BB','2019-12-01','2020-02-14');
 // cna.all('https://www.cna.com.tw/cna2018api/api/simplelist/searchkeyword/%E6%94%BF%E6%B2%BB/pageidx/');
 // chtimes.all('https://www.chinatimes.com/search/%E6%94%BF%E6%B2%BB?')

@@ -1,8 +1,38 @@
 extends layout
 
 block content
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
-    script(src="/javascripts/reporterSearch.js")
-    div(id='hr')
-    div(id='loader')
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
+  script(src="/javascripts/reporterSearch.js")
+  div(id='hr')
+  form(class='re_research' style='flex-direction: column; flex-wrap: unset; height: 120px')
+    div(class='input' style='height: 33px;')
+      div(id='reporter_media' style='margin: 5px;')
+        div(style='display: flex')
+          div(id='one_reporter_media' style='margin-left: 10px;')
+            div(id='media' style='font-size:14px') 
+            div(style='font-size: 14px ;width: 90px; line-height: 28px;') 報社 - 記者 :
+            select(id='mediaSelect1' onchange='change("mediaSelect1","selectReporter1")')
+              option(value='cna' selected) 中央社
+              option(value='chtimes') 中時電子報
+              option(value='ltn') 自由電子報
+            select(id='selectReporter1')
+            p(style='margin:0px; font-size: 14px; line-height:30px;') VS 
+            select(id='mediaSelect2' onchange='change("mediaSelect2","selectReporter2")')
+              option(value='cna' selected) 中央社
+              option(value='chtimes') 中時電子報
+              option(value='ltn') 自由電子報
+            select(id='selectReporter2') 
+      div(style='display:flex;font-size:14px;') 
+        div(style='margin-left: unset; width: 60px') 關鍵字 :
+        input(type="text" id='input' name='input' style='font-size: 14px; width:150px; margin-left: 0px;' placeholder='輸入多個關鍵字請空格' required)
+      div(id='date_input')
+        div(id='start_date_div' style='font-size: 14px; margin-left:unset;') 
+          div(style='width: 65px') 查詢區間 :
+          input(type="date" id='start_date' style='font-size: 14px; width: 140px;' name='start' required)
+          p(style='margin:0px;') ~
+          input(type="date" id='end_date' style='font-size: 14px; width: 140px;' name='end'  required)
+    //- div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月  
+    button(type='button' class='search' style='margin: 10px auto;' onclick='searchReporter()') 重新搜尋 
+  div(id='loader')
+  div(id='content')

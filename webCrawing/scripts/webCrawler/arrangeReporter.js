@@ -1,7 +1,10 @@
-const mysql = require('../util/mysqlcon');
+const mysql = require('../../util/mysqlcon');
 const nodejieba = require("nodejieba");
-const func = require('./webCrawler/webCrawler_func');
-nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
+const func = require('./webCrawler_func');
+const cityList = require('./localName');
+const request = require('request');
+const cheerio = require('cheerio');
+nodejieba.load({ userDict: './scripts/similarity/dict2.txt' });
 
 async function updateReporter() {
   try {
@@ -12,14 +15,19 @@ async function updateReporter() {
       })
       .then(async () => {
         console.log('cna reporter update is done');
-        // return chtimesUpdate();
+        return chtimesUpdate();
+      })
+      .then(()=>{
+        console.log('chtimes reporter update is done');
+        console.log('all reporter update is done');
       })
   } catch (e) {
     console.log(e)
   }
 }
 
-module.exports = updateReporter;
+chtimesUpdate();
+// module.exports = updateReporter;
 
 
 /// 以下為用到的function ///
@@ -72,14 +80,14 @@ function cnaUpdate() {
 
 function chtimesUpdate() {
   return new Promise(async (resolve, reject) => {
-    let sqlChtimes = `SELECT n.id,n.media,n.url,a.article FROM news AS n, article AS a WHERE n.media='chtimes' AND n.url=a.news_url`;
+    let sqlChtimes = `SELECT n.id,n.media,n.url FROM news AS n WHERE n.media='chtimes'`;
     let chtimesResult = await dataQuery(sqlChtimes);
 
-    for (let i = 0; i < cnaResult.length; i++) {
+    for (let i = 0; i < chtimesResult.length; i++) {
       let id = chtimesResult[i].id;
       let media = chtimesResult[i].media;
-      let article = chtimesResult[i].article;
-      let result = await chtimes(id, article);
+      let url = chtimesResult[i].url;
+      let result = await chtimes(url);
       let data = {
         id: id,
         media: media,
@@ -207,19 +215,27 @@ function dataQuery(sql) {
   })
 }
 
-function chtimes(id, article) {
+function chtimes(url) {
+  if (url.indexOf('https://www.chinatimes.com') < 0) {
+    url = 'https://www.chinatimes.com' + url;
+  }
   return new Promise((resolve, reject) => {
-    try {
-      let author = $('.author').text().trim();
-      author = author.split('、');
+    request(url, async (err, response, body) => {
+      if (err) throw err;
+      try {
+        const $ = cheerio.load(body);
+        // 新聞記者
+        let author = $('.author').text().trim();
+        author = author.split('、');
 
-      resolve({
-        media: 'chtimes',
-        author: author,
-      });
-    } catch (e) {
-      console.log('error from request', e)
-    }
+        resolve({
+          media: 'chtimes',
+          author: author,
+        });
+      } catch (e) {
+        console.log('error from request', e)
+      }
+    })
   })
 }
 
@@ -243,7 +259,7 @@ function cna(id, article) {
           }
         }
       }
-      console.log('cna reporter data has been updated', id, authors)
+      console.log('cna reporter data has been updated', id, author)
       resolve({
         media: 'cna',
         author: author,

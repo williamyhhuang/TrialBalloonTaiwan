@@ -12,11 +12,27 @@ body {
 
 .header {
   justify-content: space-between;
+  max-width: 1200px;
+  margin: 0px auto;
+  align-items: baseline;
+}
+
+.footer {
+  display: flex;
+  /* margin: 100px auto; */
+  align-items: center;
+  justify-content: center;
+  background-color: #F0F0F0;
+  position: absolute;
+  right: 0;
+  /* bottom: 0vh; */
+  width: 100%;
+  height: 50px;
 }
 
 .category{
   font-size: 20px;
-  margin: 20px;
+  margin: 20px 0px 20px 20px;
   font-weight: 400;
   cursor: pointer;
   padding: 5px;
@@ -59,7 +75,7 @@ body {
 }
 
 #input {
-  /* width: 90%; */
+  width: 80%;
   font-size: 20px;
   border-style: none;
   margin-left: 5px;
@@ -91,7 +107,7 @@ body {
   height: 40px;
   display: flex;
   justify-content: center;
-  margin: 20px auto;
+  margin: 0px auto;
   border-style: solid;
   border-radius: 10px;
   border-color: gray;
@@ -114,8 +130,8 @@ body {
 
 .cat {
   font-weight: 900; 
-  color: white;
-  background-color: #0066FF;
+  color: black;
+  background-color: #D3D3D3;
 }
 
 .item {
@@ -226,7 +242,7 @@ margin: 20px;
   margin: 0px 10px;
 }
 
-#mediaSelect1, #mediaSelect2, #reporterSelect1, #reporterSelect2 {
+#mediaSelect1, #mediaSelect2, #selectReporter1, #selectReporter2 {
   width: 110px;
   height: 30px;
   margin:0px 5px;
@@ -262,11 +278,11 @@ margin: 20px;
   cursor: pointer;
 }
 
-.goTop a {
+#goTop a {
   text-decoration: none;
   color: black;
   width: 70px;
-  height: 20px;
+  height: 30px;
   text-align: center;
   font-size: 14px;
   border-style: solid;
@@ -274,5 +290,52 @@ margin: 20px;
   position: fixed;
   z-index: 1;
   right: 1%;
-  bottom: 1%;
+  bottom: 7%;
+  line-height: 28px;
+}
+
+form {
+  height: calc(100vh - 28px  - 78px - 190px - 33.5px - 50px);
+}
+
+.re_research {
+  display: flex;
+  height: 80px;
+  /* justify-content: center; */
+  align-items: center;
+  max-width: 1200px;
+  flex-wrap: wrap;
+  margin: 0px auto;
+}
+
+.re_research .input{
+  display: flex;
+  width: 100%;
+  max-width: unset;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  border-style: solid;
+  border-radius: 20px;
+  border-color: gray;
+  border-width: 2px;
+  margin: 0px 10px;
+}
+
+.re_research .search {
+  height: unset;
+  line-height: unset;
+}
+
+#content {
+  max-width: 1200px;
+  margin: 0px auto;
+}
+
+#home_pic {
+  /* width: calc((100vh - 80px - 30px - 120px) / 1.33);  */
+  height: calc(100vh - 80px - 30px - 120px); 
+  padding: 0px 40px;
+  max-width: 1200px;
+  /* margin-bottom: 14px; */
 }

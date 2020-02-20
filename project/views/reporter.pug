@@ -9,31 +9,23 @@ block content
         div(style='display: flex')
           div(id='one_reporter_media')
             div(id='media') 報社 - 記者 :
-            select(id='mediaSelect1' onchange='change("mediaSelect1","reporterSelect1")')
+            select(id='mediaSelect1' onchange='change("mediaSelect1","selectReporter1")')
               option(value='cna' selected) 中央社
               option(value='chtimes') 中時電子報
               option(value='ltn') 自由電子報
-            select(id='reporterSelect1')
+            select(id='selectReporter1')
             p(style='margin:0px; line-height:30px;') VS 
-            select(id='mediaSelect2' onchange='change("mediaSelect2","reporterSelect2")')
+            select(id='mediaSelect2' onchange='change("mediaSelect2","selectReporter2")')
               option(value='cna' selected) 中央社
               option(value='chtimes') 中時電子報
               option(value='ltn') 自由電子報
-            select(id='reporterSelect2') 
-            //- input(id='media1' type='text' placeholder='報社一' required)
-            //- p(style='margin:0px;color:gray') -
-            //- input(id='reporter1' type='text' placeholder='記者一' required)
-            //- p(style='margin:0px') |
-            //- input(id='media2' type='text' placeholder='報社二' required)
-            //- p(style='margin:0px; color:gray') -
-            //- input(id='reporter2' type='text' placeholder='記者二' required)
+            select(id='selectReporter2') 
       div(style='display:flex;font-size:20px;margin-left:20px;') 關鍵字 :
-        input(type="text" id='input' name='input' placeholder='請輸入關鍵字' required)
-      //- img(src='/images/search.png')
+        input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格，例如 : 韓國瑜 火鍋' required)
       div(id='date_input')
         div(id='start_date_div') 搜尋日期 :
           input(type="date" id='start_date' name='start' required)
           p(style='margin:0px 10px 0px 0px;') ~
-          input(type="date" id='end_date' name='end'  required) 
+          input(type="date" id='end_date' name='end'  required)
+    div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月  
     button(type='button' class='search' onclick='searchReporter()') 搜尋 
-  script(src="/javascripts/function.js")

@@ -1,7 +1,5 @@
 let index = [];
 let url = new URLSearchParams(location.href);
-let host = location.host;
-let protocol = location.protocol;
 for (let [key, value] of url.entries()) {
   index.push(value)
 }
@@ -9,16 +7,27 @@ for (let [key, value] of url.entries()) {
 let keyword = index[0];
 let start = index[1];
 let end = index[2];
+let period = (new Date(end) - new Date(start));
+let sixMonth = 15552000000;
+let time = new Date(period)
 
+if (period < 0) {
+  window.alert('結束日期須大於開始日期');
+  window.location = `${location.protocol}//${location.host}/news`;
+} else if (time > sixMonth) {
+  window.alert('查詢區間須小於六個月');
+  window.location = `${location.protocol}//${location.host}/news`;
+}
 
-fetch(`http://${host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
+fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
   .then(function (response) {
     return response.json();
   })
   .then(function (data) {
-
+    console.log(data)
     window.onload = loading(data);
 
+    let content = document.getElementById('content');
     let hr = document.getElementById('hr');
     hr.innerHTML = '<hr>';
     let key = document.createElement('div');
@@ -28,16 +37,20 @@ fetch(`http://${host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
     start.id = 'start';
     start.innerHTML = '<p>' + '搜尋日期：' + data.start + ' ~ ' + data.end + '</p>';
 
-    document.body.appendChild(key);
-    document.body.appendChild(start);
+    content.appendChild(key);
+    content.appendChild(start);
+    // document.body.appendChild(key);
+    // document.body.appendChild(start);
 
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
       error.innerHTML = '<h1>' + '沒有關於該關鍵字的新聞，請更改關鍵字或稍後再搜尋' + '<h1>';
-      document.body.appendChild(error);
+      content.style.height = 'calc(100vh - 28px  - 78px - 160px)';
+      // document.body.appendChild(error);
+      content.appendChild(error);
     } else {
-
+      let content = document.getElementById('content');
       let month = Object.keys(data.result.cna[0]);
       let cna = mediaData(data.result.cna[0]);
       let chtimes = mediaData(data.result.chtimes[0]);
@@ -59,7 +72,8 @@ fetch(`http://${host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
       magDiv.appendChild(chartMag);
       container.appendChild(scoreDiv);
       container.appendChild(magDiv);
-      document.body.appendChild(container);
+      content.appendChild(container);
+      // document.body.appendChild(container);
       let myScoreChart = createScoreChart(chartScore, month, cna, chtimes, ltn);
       let myMagChart = createMagChart(chartMag, month, cna, chtimes, ltn);
       // 數據切換
@@ -94,16 +108,18 @@ fetch(`http://${host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
           changeChartStyle(myMagChart, false);
         }
       })
-      document.body.appendChild(but);
+      content.appendChild(but);
+      // document.body.appendChild(but);
       // 參數說明
       let instance = document.createElement('div');
       instance.id = 'instance';
       instance.innerHTML = '<h2>分析值說明 : </h2><ul><li>上述圖表所顯示的資訊為當天/月關於該關鍵字平均每篇新聞之分析值。</li><li>Score : 範圍介於 -1.0 (負面) 和 1.0 (正面) 之間，可反映文字的整體情緒傾向。</li><li>Magnitude : 表示文字的整體情緒強度，介於 0.0 和 +inf 之間。只要文字內容出現情緒用字都會提高文字的 magnitude 值。</li><li>若該日期之 score 及 magnitude 值皆為零，極有可能當天該報社/記者沒有相關關鍵字的新聞。</li><li>詳細說明請參考<a href="https://cloud.google.com/natural-language/docs/basics?hl=zh-tw"> GOOGLE - NLP</a></li></ul>';
-      document.body.appendChild(instance);
+      // document.body.appendChild(instance);
+      content.appendChild(instance);
       // 資料來源
       let source = document.createElement('div');
       source.style.margin = '0px 20px'
-      source.innerHTML = '<h2>資料來源 :</h2>';
+      source.innerHTML = '<h2 id="source">資料來源 :</h2>';
 
       createTable('中央通訊社', data.result.cna[0], source);
       createTable('中時電子報', data.result.chtimes[0], source);
@@ -111,15 +127,30 @@ fetch(`http://${host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
 
       // 新增回到置頂按鈕
       let goTop = document.createElement('div');
-      goTop.className = 'goTop';
+      goTop.id = 'goTop';
       let a = document.createElement('a');
-      a.href = `#cnaTitle`;
+      a.href = `#source`;
       a.innerHTML = 'Go Top';
       goTop.appendChild(a)
-      document.body.appendChild(source);
-      document.body.appendChild(goTop);
+      content.appendChild(source);
+      content.appendChild(goTop);
+      goTop.onscroll = scroll();
+      goTop.style.display = 'none';
+
+
     }
   })
+
+function scroll() {
+  window.addEventListener('scroll', function (e) {
+    let position = window.scrollY;
+    if (position >= 500) {
+      document.getElementById('goTop').style.display = 'block';
+    } else {
+      document.getElementById('goTop').style.display = 'none';
+    }
+  })
+}
 
 function collect(data) {
   let set = Object.values(data);
@@ -438,6 +469,7 @@ function createTable(media, data, source) {
   }
   let mediaDiv = document.createElement('div');
   let res = collectNews(data);
+  console.log(media, res)
   mediaDiv.innerHTML = `<a id=${tableId}Title><h3>${media} : 共 ${res.length} 則新聞</h3></a>`
   mediaDiv.style.paddingLeft = '20px';
   mediaDiv.style.marginTop = '30px';
@@ -487,6 +519,9 @@ function createTable(media, data, source) {
 
   // 新增新聞
   for (let j = 0; j < 5; j++) {
+    if (res[j] == null) {
+      break;
+    }
     let news = document.createElement('div');
     news.style.display = 'flex';
     news.style.justifyContent = 'space-around';
@@ -543,6 +578,9 @@ function createTable(media, data, source) {
   subDiv.id = tableId;
   subDiv.style.display = 'none';
   for (let j = 5; j < res.length; j++) {
+    if (res[j] == null) {
+      break;
+    }
     let news = document.createElement('div');
     news.style.display = 'flex';
     news.style.justifyContent = 'space-around';

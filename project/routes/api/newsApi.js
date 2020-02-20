@@ -3,6 +3,15 @@ const router = express.Router();
 const mysql = require('../../util/mysqlcon');
 const similarity = require('compute-cosine-similarity');
 
+router.use("/", function (req, res, next) {
+
+  res.set("Access-Control-Allow-Origin", "127.0.0.1");
+  res.set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
+  res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.set("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 router.get('/', async function (req, res, next) {
   let input = req.query.keyword;
   let start = req.query.start;
@@ -30,7 +39,7 @@ router.get('/', async function (req, res, next) {
         cna.push(oneNews);
       }
 
-      if (cna == false) {
+      if (set == false) {
 
         res.json({
           keyword: input,

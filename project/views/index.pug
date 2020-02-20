@@ -1,19 +1,17 @@
 extends layout
 
 block content
-  script(src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0")
   div(class='title')
-    h1(id='title') Trial Balloon Taiwan
+    h1(id='title') 新聞比一比
   form(action='./news' method='post')
     div(class='input')
       div(style='display:flex;font-size:20px;margin-left:20px;') 關鍵字 :
-        input(type="text" id='input' name='input' placeholder='請輸入關鍵字' required)
-      //- img(src='/images/search.png')
+        input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格，例如 : 韓國瑜 火鍋' required)
       div(id='date_input')
-        div(id='start_date_div') 搜尋日期 :
+        div(id='start_date_div') 查詢區間 :
           input(type="date" id='start_date' name='start' required)
           p(style='margin:0px 10px 0px 0px;') ~
-          input(type="date" id='end_date' name='end'  required) 
+          input(type="date" id='end_date' name='end'  required)
+    div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於三個月 
     button(type='button' class='search' onclick='searchNews()') 搜尋
-  script(src="/javascripts/function.js")
     

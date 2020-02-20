@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../../util/mysqlcon');
 
+router.use("/", function (req, res, next) {
+
+  res.set("Access-Control-Allow-Origin", "127.0.0.1");
+  res.set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
+  res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.set("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 router.get('/', async function (req, res, next) {
   let input = req.query.keyword;
   let start = req.query.start;

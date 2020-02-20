@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/home');
 var usersRouter = require('./routes/users');
 var newsRouter = require('./routes/news')
 var mediaRouter = require('./routes/media')
@@ -15,6 +15,7 @@ var newsApiRouter = require('./routes/api/newsApi')
 var mediaApiRouter = require('./routes/api/mediaApi')
 var reporterApiRouter = require('./routes/api/reporterApi');
 var selectReporterApiRouter = require('./routes/api/selectReporter');
+var homeRouter = require('./routes/home');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/home', homeRouter);
 app.use('/users', usersRouter);
 app.use('/news', newsRouter);
 app.use('/media', mediaRouter);

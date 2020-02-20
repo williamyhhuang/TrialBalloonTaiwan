@@ -1,16 +1,25 @@
 let index = [];
 let url = new URLSearchParams(location.href);
-let host = location.host;
 for (let [key, value] of url.entries()) {
   index.push(value)
 }
 
-console.log(index)
 let keyword = index[0];
 let start = index[1];
 let end = index[2];
+let period = (new Date(end) - new Date(start));
+let threeMonth = 7776000000;
+let time = new Date(period)
 
-fetch(`http://${host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
+if (period < 0) {
+  window.alert('結束日期須大於開始日期');
+  window.location = `${location.protocol}//${location.host}/news`;
+} else if (time > threeMonth) {
+  window.alert('查詢區間須小於三個月');
+  window.location = `${location.protocol}//${location.host}/news`;
+}
+
+fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
   .then(function (response) {
     return response.json();
   })
@@ -21,7 +30,7 @@ fetch(`http://${host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
         document.getElementById('loader').style.display = 'none';
       }
     }
-    console.log('here', data)
+    let content = document.getElementById('content');
     let hr = document.getElementById('hr');
     hr.innerHTML = '<hr>';
     let key = document.createElement('div');
@@ -31,14 +40,18 @@ fetch(`http://${host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
     start.id = 'start';
     start.innerHTML = '<p>' + '搜尋日期：' + data.start + ' ~ ' + data.end + '</p>';
 
-    document.body.appendChild(key);
-    document.body.appendChild(start);
+    content.appendChild(key);
+    content.appendChild(start);
+    // document.body.appendChild(key);
+    // document.body.appendChild(start);
 
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
       error.innerHTML = '<h1>' + '沒有關於該關鍵字的新聞，請更改關鍵字或稍後再搜尋' + '<h1>';
-      document.body.appendChild(error);
+      content.style.height = 'calc(100vh - 28px  - 78px - 160px)';
+      content.appendChild(error);
+      // document.body.appendChild(error);
     } else {
       let bigDiv = document.createElement('div');
       bigDiv.id = 'bigDiv';
@@ -106,7 +119,8 @@ fetch(`http://${host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
       bigRightDiv.appendChild(recommend);
       bigDiv.appendChild(bigLeftDiv);
       bigDiv.appendChild(bigRightDiv);
-      document.body.appendChild(bigDiv);
+      content.appendChild(bigDiv);
+      // document.body.appendChild(content);
       // document.body.appendChild(recommendTitle);         
       // document.body.appendChild(recommend);
 

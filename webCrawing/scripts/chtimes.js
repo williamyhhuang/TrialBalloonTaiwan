@@ -8,7 +8,7 @@ const nodejieba = require("nodejieba");
 const nodemailer = require('nodemailer');
 const cityList = require('./webCrawler/localName');
 
-nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
+nodejieba.load({ userDict: 'scripts/similarity/dict2.txt' });
 
 let exceptKeywords = [
   '中央社',

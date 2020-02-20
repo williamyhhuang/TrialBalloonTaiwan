@@ -1,3 +1,14 @@
+if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'reporter')>=0 || location.href.indexOf(location.protocol + '//' + location.host + '/' + 'search/reporter')>=0) {
+  defaultMediaCna();
+}
+
+color()
+
+// 預設搜尋日期
+document.getElementById('end_date').value = moment().format('YYYY-MM-DD');
+
+
+/// 以下為function ///
 function searchNews() {
   let input = document.getElementById('input').value;
   let start = document.getElementById('start_date').value;
@@ -5,20 +16,20 @@ function searchNews() {
   input = input.split(' ');
   let period = (new Date(end) - new Date(start));
   let time = new Date(period)
-  let sixMonth = 15552000000;
+  let threeMonth = 7776000000;
 
   if (period < 0) {
     window.alert('結束日期須大於開始日期');
-  } else if (time > sixMonth) {
-    window.alert('搜尋日期須小於六個月');
+  } else if (time > threeMonth) {
+    window.alert('查詢區間須小於三個月');
   } else {
     let keyword = '';
     for (let i = 0; i < input.length; i++) {
       keyword += '+' + input[i];
     }
     keyword = keyword.slice(1);
-    const host = location.host;
-    window.location = `http://${host}/search/news?keyword=${keyword}&start=${start}&end=${end}`;
+
+    window.location = `${location.protocol}//${location.host}/search/news?keyword=${keyword}&start=${start}&end=${end}`;
   }
 }
 
@@ -33,7 +44,7 @@ function searchMedia() {
   if (period < 0) {
     window.alert('結束日期須大於開始日期');
   } else if (time > sixMonth) {
-    window.alert('搜尋日期須小於六個月');
+    window.alert('查詢區間須小於六個月');
   } else {
     input = input.split(' ');
     let keyword = '';
@@ -42,8 +53,7 @@ function searchMedia() {
     }
     keyword = keyword.slice(1);
 
-    const host = location.host;
-    window.location = `http://${host}/search/media?keyword=${keyword}&start=${start}&end=${end}`;
+    window.location = `${location.protocol}//${host}/search/media?keyword=${keyword}&start=${start}&end=${end}`;
   }
 }
 
@@ -51,8 +61,8 @@ function searchReporter() {
   let input = document.getElementById('input').value;
   let media1 = document.getElementById('mediaSelect1').value;
   let media2 = document.getElementById('mediaSelect2').value;
-  let reporter1 = document.getElementById('reporterSelect1').value;
-  let reporter2 = document.getElementById('reporterSelect2').value;
+  let reporter1 = document.getElementById('selectReporter1').value;
+  let reporter2 = document.getElementById('selectReporter2').value;
   let start = document.getElementById('start_date').value;
   let end = document.getElementById('end_date').value;
   let period = (new Date(end) - new Date(start));
@@ -62,7 +72,7 @@ function searchReporter() {
   if (period < 0) {
     window.alert('結束日期須大於開始日期');
   } else if (time > sixMonth) {
-    window.alert('搜尋日期須小於六個月');
+    window.alert('查詢區間須小於六個月');
   } else {
     input = input.split(' ');
     let keyword = '';
@@ -71,48 +81,47 @@ function searchReporter() {
     }
     keyword = keyword.slice(1);
 
-
-    const host = location.host;
-    window.location = `http://${host}/search/reporter?media1=${media1}&reporter1=${reporter1}&media2=${media2}&reporter2=${reporter2}&keyword=${keyword}&start=${start}&end=${end}`;
+    window.location = `${location.protocol}//${location.host}/search/reporter?media1=${media1}&reporter1=${reporter1}&media2=${media2}&reporter2=${reporter2}&keyword=${keyword}&start=${start}&end=${end}`;
   }
 }
 
+// 重新導向
+function redirectHome() {
+  window.location = `${location.protocol}//${location.host}/home`;
+}
+
 function redirectNews() {
-  const host = location.host;
-  window.location = `http://${host}/news`;
+  window.location = `${location.protocol}//${location.host}/news`;
 }
 
 function redirectMedia() {
-  const host = location.host;
-  window.location = `http://${host}/media`;
+  window.location = `${location.protocol}//${location.host}/media`;
 }
 
 function redirectReporter() {
-  const host = location.host;
-  window.location = `http://${host}/reporter`;
+  window.location = `${location.protocol}//${location.host}/reporter`;
 }
 
+// 選到該功能的顏色切換
 function color() {
-  let href = location.href;
-  if (href.indexOf('news') != -1 || href == 'http://localhost:3000/') {
-    document.getElementById('cat_news').style.backgroundColor = '#f2d24d';
+  if (location.href.indexOf('news') != -1) {
+    document.getElementById('cat_news').style.backgroundColor = '#000000';
     document.getElementById('cat_news').style.color = 'white';
-  } else if (href.indexOf('reporter') != -1) {
-    document.getElementById('cat_reporter').style.backgroundColor = '#f2d24d';
+  } else if (location.href.indexOf('reporter') != -1) {
+    document.getElementById('cat_reporter').style.backgroundColor = '#000000';
     document.getElementById('cat_reporter').style.color = 'white';
-  } else if (href.indexOf('media') != -1) {
-    document.getElementById('cat_media').style.backgroundColor = '#f2d24d';
+  } else if (location.href.indexOf('media') != -1) {
+    document.getElementById('cat_media').style.backgroundColor = '#000000';
     document.getElementById('cat_media').style.color = 'white';
   }
 }
 
-color()
-
+// 切換記者比一比的報社與記者
 function change(media, reporterSelect) {
   let select = document.getElementById(media);
   let opt = select.options[select.selectedIndex].value;
-  let host = location.host;
-  fetch(`http://${host}/api/selectReporter?media=${opt}`)
+
+  fetch(`${location.protocol}//${location.host}/api/selectReporter?media=${opt}`)
     .then(function (response) {
       return response.json();
     })
@@ -130,15 +139,15 @@ function change(media, reporterSelect) {
     })
 }
 
-function defaultCna(){
-  let host = location.host;
-  fetch(`http://${host}/api/selectReporter?media=cna`)
+// 預設記者比一比的報社為中央社
+function defaultMediaCna() {
+  fetch(`${location.protocol}//${location.host}/api/selectReporter?media=cna`)
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
-      let reporter1 = document.getElementById('reporterSelect1');
-      let reporter2 = document.getElementById('reporterSelect2');
+      let reporter1 = document.getElementById('selectReporter1');
+      let reporter2 = document.getElementById('selectReporter2');
       while (reporter1.firstChild) {
         reporter1.removeChild(reporter1.firstChild);
       }
@@ -157,5 +166,3 @@ function defaultCna(){
       }
     })
 }
-
-defaultCna();
