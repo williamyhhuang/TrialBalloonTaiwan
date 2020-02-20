@@ -53,7 +53,7 @@ function searchMedia() {
     }
     keyword = keyword.slice(1);
 
-    window.location = `${location.protocol}//${host}/search/media?keyword=${keyword}&start=${start}&end=${end}`;
+    window.location = `${location.protocol}//${location.host}/search/media?keyword=${keyword}&start=${start}&end=${end}`;
   }
 }
 

@@ -28,7 +28,7 @@ fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&repo
     return response.json();
   })
   .then(function (data) {
-    console.log(data)
+
     window.onload = loading(data);
     let content = document.getElementById('content');
     let hr = document.getElementById('hr');
@@ -61,7 +61,7 @@ fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&repo
       let month = Object.keys(data.result.reporter1[0]);
       let reporter1 = mediaData(data.result.reporter1[0]);
       let reporter2 = mediaData(data.result.reporter2[0]);
-      console.log('2', data.result.reporter1)
+
       // 圖表div建立
       let container = document.createElement('div');
       container.className = 'chart-container';
@@ -440,7 +440,7 @@ function changeChartStyle(chart, set) {
 function collectNews(data) {
   let month = Object.keys(data);
   let newsData = Object.values(data);
-  console.log(newsData);
+
   let news = [];
   for (let i = 0; i < month.length; i++) {
     if (newsData[i].news.length == 0) {
@@ -522,6 +522,9 @@ function createTable(reporter, data, source) {
 
   // 新增新聞
   for (let j = 0; j < 5; j++) {
+    if (res[j] == null) {
+      break;
+    }
     let news = document.createElement('div');
     news.style.display = 'flex';
     news.style.justifyContent = 'space-around';
