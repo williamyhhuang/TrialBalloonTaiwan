@@ -1,15 +1,15 @@
 version: "3.2"
 services:
-  nginx:
-    image: nginx
-    container_name: tbt_nginx
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - "./init_nginx/conf.d:/etc/nginx/conf.d"
-    depends_on:
-      - tbt_web
+  # nginx:
+  #   image: nginx
+  #   container_name: tbt_nginx
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - "./init_nginx/conf.d:/etc/nginx/conf.d"
+  #   depends_on:
+  #     - tbt
   mysql:
     image: mysql
     environment:

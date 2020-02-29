@@ -50,7 +50,7 @@ router.get('/', async function (req, res, next) {
       } else {
 
         let result = {
-          chtimes: [chtimesResult,chtimesResult2],
+          chtimes: [chtimesResult, chtimesResult2],
           cna: [cnaResult, cnaResult2],
           ltn: [ltnResult, ltnResult2]
         }
@@ -199,10 +199,14 @@ function category2(start, end) {
       } else if (d == 31 && (m == 4 || m == 6 || m == 9 || m == 11)) {
         d = d - 30;
         m = m + 1
-      } else if (d == 29 && m == 2) {
+      } else if (d == 29 && m == 2 && y % 4 != 0) {
         d = d - 28;
         m = m + 1;
+      } else if (d == 29 && m == 2 && y % 4 == 0) {
+        d = d;
+        m = m;
       }
+
       if (m == 13) {
         m = m - 12;
         y = y + 1;
