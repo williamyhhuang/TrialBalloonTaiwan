@@ -33,6 +33,6 @@ block content
           p(style='margin:0px;') ~
           input(type="date" id='end_date' style='font-size: 14px; width: 140px;' name='end'  required)
     //- div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月  
-    button(type='button' class='search' style='margin: 10px auto;' onclick='searchReporter()') 重新搜尋 
+    button(type='button' id='search' style='margin: 10px auto;' onclick='searchReporter()') 重新搜尋 
   div(id='loader')
   div(id='content')

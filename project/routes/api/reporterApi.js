@@ -24,6 +24,8 @@ router.get('/', async function (req, res, next) {
   if (keyword == '') {
     res.json({
       keyword: input,
+      reporter1: [media1, reporter1],
+      reporter2: [media2, reporter2],
       start: start,
       end: end,
       result: false
@@ -43,6 +45,8 @@ router.get('/', async function (req, res, next) {
       if (reporter1Result == false && reporter2Result == false) {
         res.json({
           keyword: input,
+          reporter1: [media1, reporter1],
+          reporter2: [media2, reporter2],
           start: start,
           end: end,
           result: false
@@ -229,25 +233,46 @@ function category2(start, end) {
 }
 
 function media(start, end, data) {
-  if (data == false) {
-    return false;
-  } else {
-    let timeCat = category(start, end);
-    for (let i = 0; i < data.length; i++) {
-      let time = new Date(data[i].date)
-      let t = String(time.getFullYear()) + '/' + String(time.getMonth() + 1);
-      timeCat[t].news.push(data[i]);
-      timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
-      timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
-    }
-    return timeCat;
+  // if (data == false) {
+  //   return false;
+  // } else {
+  //   let timeCat = category(start, end);
+  //   for (let i = 0; i < data.length; i++) {
+  //     let time = new Date(data[i].date)
+  //     let t = String(time.getFullYear()) + '/' + String(time.getMonth() + 1);
+  //     timeCat[t].news.push(data[i]);
+  //     timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
+  //     timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
+  //   }
+  //   return timeCat;
+  // }
+
+  let timeCat = category(start, end);
+  for (let i = 0; i < data.length; i++) {
+    let time = new Date(data[i].date)
+    let t = String(time.getFullYear()) + '/' + String(time.getMonth() + 1);
+    timeCat[t].news.push(data[i]);
+    timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
+    timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
   }
+  return timeCat;
+
 }
 
 function mediaDay(start, end, data) {
-  if (data == false) {
-    return false;
-  } else {
+  // if (data == false) {
+  //   return false;
+  // } else {
+  //   let timeCat = category2(start, end);
+  //   for (let i = 0; i < data.length; i++) {
+  //     let time = new Date(data[i].date)
+  //     let t = String(time.getFullYear()) + '/' + String(time.getMonth() + 1) + '/' + String(time.getDate());
+  //     timeCat[t].news.push(data[i]);
+  //     timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
+  //     timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
+  //   }
+  //   return timeCat;
+  // }
     let timeCat = category2(start, end);
     for (let i = 0; i < data.length; i++) {
       let time = new Date(data[i].date)
@@ -257,22 +282,5 @@ function mediaDay(start, end, data) {
       timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
     }
     return timeCat;
-    // let timeCat = {};
-    // for (let i = 0; i < data.length; i++) {
-    //   let time = new Date(data[i].date)
-    //   let t = String(time.getFullYear()) + '/' + (String(time.getMonth() + 1)) + '/' + String(time.getDate());
-    //   if (timeCat[t] == undefined) {
-    //     timeCat[t] = {
-    //       news: [],
-    //       totalScore: 0,
-    //       totalMag: 0
-    //     };
-    //   } else {
-    //     timeCat[t].news.push(data[i]);
-    //     timeCat[t].totalScore = timeCat[t].totalScore + Number(data[i].score);
-    //     timeCat[t].totalMag = timeCat[t].totalMag + Number(data[i].magnitude);
-    //   }
-    // }
-    // return timeCat;
-  }
+  
 }

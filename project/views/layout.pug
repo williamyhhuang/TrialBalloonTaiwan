@@ -9,12 +9,12 @@ html
     div(class='header')
       div(style='display: flex; align-items: baseline; ')
         i(class="twicon-main-island" style='font-size: 40px;')
-        div(class='category' id='home' style='font-size: 30px; margin-left:10px; font-weight: bold' onclick='redirectHome()') Trial Balloon Taiwan
+        div(id='home' style='font-size: 30px; margin-left:10px; font-weight: bold; color:#3C3C3C;' onclick='redirectHome()') Trial Balloon Taiwan
       div(class='categories')
         div(class='category' id='cat_news' onclick='redirectNews()') 新聞比一比
         div(class='category' id='cat_media' onclick='redirectMedia()') 報社比一比
         div(class='category' id='cat_reporter' onclick='redirectReporter()') 記者比一比
-        div(class='category') 關於我們
+        div(class='category' id='cat_about' onclick='redirectAbout()') 關於我們
     block content
     div(class='footer')
       p &copy; Copyright 2020 Trial Balloon Taiwan. All rights reserved.

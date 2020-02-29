@@ -60,6 +60,7 @@ let cityList = [
     '特稿',
     '桃園機場',
     '梵蒂岡',
+    '新德里',
   ];
 
 module.exports = cityList;

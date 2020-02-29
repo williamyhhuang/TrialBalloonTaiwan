@@ -53,7 +53,8 @@ fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&repo
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
-      error.innerHTML = '<h1>' + '沒有關於該關鍵字的新聞，請更改關鍵字或稍後再搜尋' + '<h1>';
+      error.innerHTML = '<h2>' + '沒有關於該關鍵字的新聞' + '<h2>' + '<h2>' + '請更改關鍵字或稍後再搜尋' + '<h2>';
+      content.style.height = 'calc(100vh - 28px  - 78px - 190px)';
       content.appendChild(error);
       // document.body.appendChild(error);
     } else {
@@ -87,7 +88,7 @@ fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&repo
       // document.body.appendChild(container);
       let myScoreChart = createScoreChart(chartScore, month, reporter1, reporter2, data.reporter1[1], data.reporter2[1]);
       let myMagChart = createMagChart(chartMag, month, reporter1, reporter2, data.reporter1[1], data.reporter2[1]);
-
+console.log(data)
       // 數據切換
       let but = document.createElement('div');
       but.className = 'change';
@@ -247,7 +248,7 @@ function createScoreChart(chart, month, reporter1, reporter2, name1, name2) {
       title: {
         display: true,
         text: '記者之時間與新聞情緒傾向關係圖',
-        fontSize: 20,
+        fontSize: 18,
         fontStyle: 'bold',
       },
       scales: {
@@ -267,7 +268,7 @@ function createScoreChart(chart, month, reporter1, reporter2, name1, name2) {
           scaleLabel: {
             display: true,
             labelString: '月份',
-            fontSize: 20
+            fontSize: 16
           }
         }],
         yAxes: [{
@@ -282,7 +283,7 @@ function createScoreChart(chart, month, reporter1, reporter2, name1, name2) {
             display: true,
             labelString: '整體情緒傾向',
             // fontStyle: 'bold',
-            fontSize: 20
+            fontSize: 16
           }
         }]
       }
@@ -322,7 +323,7 @@ function createMagChart(chart, month, reporter1, reporter2, name1, name2) {
       title: {
         display: true,
         text: '記者之時間與新聞情緒分析關係圖',
-        fontSize: 20,
+        fontSize: 18,
         fontStyle: 'bold',
       },
       scales: {
@@ -342,7 +343,7 @@ function createMagChart(chart, month, reporter1, reporter2, name1, name2) {
           scaleLabel: {
             display: true,
             labelString: '月份',
-            fontSize: 20
+            fontSize: 16
           }
         }],
         yAxes: [{
@@ -359,7 +360,7 @@ function createMagChart(chart, month, reporter1, reporter2, name1, name2) {
             display: true,
             labelString: '整體情緒強度',
             // fontStyle: 'bold',
-            fontSize: 20
+            fontSize: 16
           }
         }]
       }
@@ -370,7 +371,7 @@ function createMagChart(chart, month, reporter1, reporter2, name1, name2) {
 function changeScoreChart(chart, date, reporter1, reporter2, check) {
   let reporter1Data = collect(reporter1);
   let reporter2Data = collect(reporter2);
-
+console.log(reporter1Data, reporter2Data)
   chart.data.labels = date;
   chart.data.datasets[0].data = reporter1Data.score;
   chart.data.datasets[1].data = reporter2Data.score;
@@ -480,38 +481,36 @@ function createTable(reporter, data, source) {
   table.className = 'table';
   table.style.flexDirection = 'column';
   table.style.borderWidth = '3px';
-  table.style.marginBottom = '50px';
+  table.style.margin = '0px auto 50px';
   table.style.width = '95%';
   let top = document.createElement('div');
   top.style.display = 'flex';
   let time = document.createElement('div');
   time.innerHTML = '時間';
   time.className = 'mediaTable';
-  time.style.borderRightStyle = 'solid';
   time.style.borderBottomStyle = 'solid';
-  time.style.width = '22%';
+  time.style.width = '20%';
   let title = document.createElement('div');
   title.innerHTML = '標題';
   title.className = 'mediaTable';
   title.style.width = '100%';
-  title.style.borderRightStyle = 'solid';
-  title.style.borderBottomStyle = 'solid';
+  title.style.borderStyle = 'solid';
+  title.style.borderTopStyle = 'none';
   let url = document.createElement('div');
   url.innerHTML = '連結';
   url.className = 'mediaTable';
   url.style.width = '100%';
-  url.style.borderRightStyle = 'solid';
   url.style.borderBottomStyle = 'solid';
   let score = document.createElement('div');
   score.innerHTML = 'Score';
   score.className = 'mediaTable';
-  score.style.width = '20%';
-  score.style.borderRightStyle = 'solid';
-  score.style.borderBottomStyle = 'solid';
+  score.style.width = '19%';
+  score.style.borderStyle = 'solid';
+  score.style.borderTopStyle = 'none';
   let mag = document.createElement('div');
   mag.innerHTML = 'Magnitude';
   mag.className = 'mediaTable';
-  mag.style.width = '20%';
+  mag.style.width = '19%';
   mag.style.borderBottomStyle = 'solid';
   top.appendChild(time);
   top.appendChild(title);
@@ -530,7 +529,7 @@ function createTable(reporter, data, source) {
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
     dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '22%';
+    dateDiv.style.width = '20%';
     dateDiv.style.padding = '2px 0px';
     let titleDiv = document.createElement('div');
     titleDiv.className = 'mediaTable';
@@ -544,13 +543,13 @@ function createTable(reporter, data, source) {
     urlDiv.style.padding = '2px 0px';
     let scoreDiv = document.createElement('div');
     scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '20%';
+    scoreDiv.style.width = '19%';
     scoreDiv.style.padding = '2px 0px';
     scoreDiv.style.borderLeftStyle = 'solid';
     scoreDiv.style.borderRightStyle = 'solid';
     let magDiv = document.createElement('div');
     magDiv.className = 'mediaTable';
-    magDiv.style.width = '20%';
+    magDiv.style.width = '19%';
     magDiv.style.padding = '2px 0px';
     let date = res[j].date;
     let title = res[j].title;
@@ -586,7 +585,7 @@ function createTable(reporter, data, source) {
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
     dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '22%';
+    dateDiv.style.width = '20%';
     dateDiv.style.padding = '2px 0px';
     let titleDiv = document.createElement('div');
     titleDiv.className = 'mediaTable';
@@ -600,13 +599,13 @@ function createTable(reporter, data, source) {
     urlDiv.style.padding = '2px 0px';
     let scoreDiv = document.createElement('div');
     scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '20%';
+    scoreDiv.style.width = '19%';
     scoreDiv.style.padding = '2px 0px';
     scoreDiv.style.borderLeftStyle = 'solid';
     scoreDiv.style.borderRightStyle = 'solid';
     let magDiv = document.createElement('div');
     magDiv.className = 'mediaTable';
-    magDiv.style.width = '20%';
+    magDiv.style.width = '19%';
     magDiv.style.padding = '2px 0px';
     let date = res[j].date;
     let title = res[j].title;

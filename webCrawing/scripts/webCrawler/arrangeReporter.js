@@ -26,8 +26,7 @@ async function updateReporter() {
   }
 }
 
-chtimesUpdate();
-// module.exports = updateReporter;
+module.exports = updateReporter;
 
 
 /// 以下為用到的function ///

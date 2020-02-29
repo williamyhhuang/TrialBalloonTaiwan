@@ -1,0 +1,44 @@
+version: "3.2"
+services:
+  nginx:
+    image: nginx
+    container_name: tbt_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - "./init_nginx/conf.d:/etc/nginx/conf.d"
+    depends_on:
+      - tbt_web
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - "./webCrawing/sql:/data"
+      - "./init_mysql:/docker-entrypoint-initdb.d/"
+  tbt:
+    restart: always
+    container_name: tbt_web
+    build:
+      context: ./project
+      dockerfile: Dockerfile
+    depends_on: 
+      - mysql
+    ports:
+      - "${TBT_PORT}:3000"
+  webcraw:
+    restart: always
+    container_name: tbt_webcraw
+    build:
+      context: ./webCrawing
+      dockerfile: Dockerfile
+    volumes:
+      - "./google_nlp:/webcraw/google_nlp"
+    depends_on: 
+      - mysql
+    ports:
+      - "${WEBCRAW_PORT}:5000"

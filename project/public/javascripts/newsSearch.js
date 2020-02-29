@@ -48,8 +48,8 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
-      error.innerHTML = '<h1>' + '沒有關於該關鍵字的新聞，請更改關鍵字或稍後再搜尋' + '<h1>';
-      content.style.height = 'calc(100vh - 28px  - 78px - 160px)';
+      error.innerHTML = '<h2>' + '沒有關於該關鍵字的新聞' + '<h2>' + '<h2>' + '請更改關鍵字或稍後再搜尋' + '<h2>';
+      content.style.height = 'calc(100vh - 28px  - 78px - 148px)';
       content.appendChild(error);
       // document.body.appendChild(error);
     } else {
@@ -286,7 +286,7 @@ function createScoreChart(chart, data) {
         text: '報社與情緒傾向關係圖',
         fontSize: 18,
         fontStyle: 'bold',
-        fontColor: 'black',
+        // fontColor: 'black',
         padding: 0
       },
       scales: {
@@ -337,7 +337,7 @@ function createMagChart(chart, data) {
         text: '報社與情緒強度關係圖',
         fontSize: 18,
         fontStyle: 'bold',
-        fontColor: 'black'
+        // fontColor: 'black'
       },
       scales: {
         xAxes: [{

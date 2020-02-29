@@ -24,7 +24,7 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
     return response.json();
   })
   .then(function (data) {
-    console.log(data)
+
     window.onload = loading(data);
 
     let content = document.getElementById('content');
@@ -45,8 +45,8 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
-      error.innerHTML = '<h1>' + '沒有關於該關鍵字的新聞，請更改關鍵字或稍後再搜尋' + '<h1>';
-      content.style.height = 'calc(100vh - 28px  - 78px - 160px)';
+      error.innerHTML = '<h2>' + '沒有關於該關鍵字的新聞' + '<h2>' + '<h2>' + '請更改關鍵字或稍後再搜尋' + '<h2>';
+      content.style.height = 'calc(100vh - 28px  - 78px - 148px)';
       // document.body.appendChild(error);
       content.appendChild(error);
     } else {
@@ -239,7 +239,7 @@ function createScoreChart(chart, month, cna, chtimes, ltn) {
       title: {
         display: true,
         text: '報社之時間與新聞情緒傾向關係圖',
-        fontSize: 20,
+        fontSize: 18,
         fontStyle: 'bold',
       },
       scales: {
@@ -259,7 +259,7 @@ function createScoreChart(chart, month, cna, chtimes, ltn) {
           scaleLabel: {
             display: true,
             labelString: '月份',
-            fontSize: 20
+            fontSize: 16
           }
         }],
         yAxes: [{
@@ -273,7 +273,7 @@ function createScoreChart(chart, month, cna, chtimes, ltn) {
           scaleLabel: {
             display: true,
             labelString: '整體情緒傾向',
-            fontSize: 20
+            fontSize: 16
           }
         }]
       }
@@ -322,7 +322,7 @@ function createMagChart(chart, month, cna, chtimes, ltn) {
       title: {
         display: true,
         text: '報社之時間與新聞情緒強度關係圖',
-        fontSize: 20,
+        fontSize: 18,
         fontStyle: 'bold',
       },
       scales: {
@@ -342,7 +342,7 @@ function createMagChart(chart, month, cna, chtimes, ltn) {
           scaleLabel: {
             display: true,
             labelString: '月份',
-            fontSize: 20
+            fontSize: 16
           }
         }],
         yAxes: [{
@@ -358,7 +358,7 @@ function createMagChart(chart, month, cna, chtimes, ltn) {
           scaleLabel: {
             display: true,
             labelString: '整體情緒強度',
-            fontSize: 20
+            fontSize: 16
           }
         }]
       }
@@ -477,38 +477,36 @@ function createTable(media, data, source) {
   table.className = 'table';
   table.style.flexDirection = 'column';
   table.style.borderWidth = '3px';
-  table.style.marginBottom = '50px';
+  table.style.margin = '0px auto 50px';
   table.style.width = '95%';
   let top = document.createElement('div');
   top.style.display = 'flex';
   let time = document.createElement('div');
   time.innerHTML = '時間';
   time.className = 'mediaTable';
-  time.style.borderRightStyle = 'solid';
   time.style.borderBottomStyle = 'solid';
-  time.style.width = '22%';
+  time.style.width = '20%';
   let title = document.createElement('div');
   title.innerHTML = '標題';
   title.className = 'mediaTable';
   title.style.width = '100%';
-  title.style.borderRightStyle = 'solid';
-  title.style.borderBottomStyle = 'solid';
+  title.style.borderStyle = 'solid';
+  title.style.borderTopStyle = 'none';
   let url = document.createElement('div');
   url.innerHTML = '連結';
   url.className = 'mediaTable';
   url.style.width = '100%';
-  url.style.borderRightStyle = 'solid';
   url.style.borderBottomStyle = 'solid';
   let score = document.createElement('div');
   score.innerHTML = 'Score';
   score.className = 'mediaTable';
-  score.style.width = '20%';
-  score.style.borderRightStyle = 'solid';
-  score.style.borderBottomStyle = 'solid';
+  score.style.width = '19%';
+  score.style.borderStyle = 'solid';
+  score.style.borderTopStyle = 'none';
   let mag = document.createElement('div');
   mag.innerHTML = 'Magnitude';
   mag.className = 'mediaTable';
-  mag.style.width = '20%';
+  mag.style.width = '19%';
   mag.style.borderBottomStyle = 'solid';
   top.appendChild(time);
   top.appendChild(title);
@@ -527,7 +525,7 @@ function createTable(media, data, source) {
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
     dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '22%';
+    dateDiv.style.width = '20%';
     dateDiv.style.padding = '2px 0px';
     let titleDiv = document.createElement('div');
     titleDiv.className = 'mediaTable';
@@ -541,13 +539,13 @@ function createTable(media, data, source) {
     urlDiv.style.padding = '2px 0px';
     let scoreDiv = document.createElement('div');
     scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '20%';
+    scoreDiv.style.width = '19%';
     scoreDiv.style.padding = '2px 0px';
     scoreDiv.style.borderLeftStyle = 'solid';
     scoreDiv.style.borderRightStyle = 'solid';
     let magDiv = document.createElement('div');
     magDiv.className = 'mediaTable';
-    magDiv.style.width = '20%';
+    magDiv.style.width = '19%';
     magDiv.style.padding = '2px 0px';
     let date = res[j].date;
     let title = res[j].title;
@@ -586,7 +584,7 @@ function createTable(media, data, source) {
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
     dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '22%';
+    dateDiv.style.width = '20%';
     dateDiv.style.padding = '2px 0px';
     let titleDiv = document.createElement('div');
     titleDiv.className = 'mediaTable';
@@ -600,13 +598,13 @@ function createTable(media, data, source) {
     urlDiv.style.padding = '2px 0px';
     let scoreDiv = document.createElement('div');
     scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '20%';
+    scoreDiv.style.width = '19%';
     scoreDiv.style.padding = '2px 0px';
     scoreDiv.style.borderLeftStyle = 'solid';
     scoreDiv.style.borderRightStyle = 'solid';
     let magDiv = document.createElement('div');
     magDiv.className = 'mediaTable';
-    magDiv.style.width = '20%';
+    magDiv.style.width = '19%';
     magDiv.style.padding = '2px 0px';
     let date = res[j].date;
     let title = res[j].title;

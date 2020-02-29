@@ -1,8 +1,4 @@
-/project/node_modules
-/project/util
-/webCrawing/node_modules
-/webCrawing/util
-/webCrawing/scripts/webCrawler/gmail.js
+/webCrawing/scripts/test.js
+node_modules
 .env
-AppWorks School Project-2af1dcb7290c.json
-personal_project_20200121.key
+/google_nlp

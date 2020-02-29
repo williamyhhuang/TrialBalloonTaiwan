@@ -16,7 +16,7 @@ var mediaApiRouter = require('./routes/api/mediaApi')
 var reporterApiRouter = require('./routes/api/reporterApi');
 var selectReporterApiRouter = require('./routes/api/selectReporter');
 var homeRouter = require('./routes/home');
-
+var aboutRouter = require('./routes/about');
 var app = express();
 
 // view engine setup
@@ -34,6 +34,7 @@ app.use('/home', homeRouter);
 app.use('/users', usersRouter);
 app.use('/news', newsRouter);
 app.use('/media', mediaRouter);
+app.use('/about', aboutRouter);
 app.use('/reporter', reporterRouter);
 app.use('/search/news', newsSearchRouter);
 app.use('/search/media', mediaSearchRouter);

@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  div(style='display: flex; justify-content: space-between; margin: 0px auto; max-width: 1200px; padding: 0px 40px;')
+    div(style='padding-right: 150px;')
+      h1 Trial Balloon Taiwan 
+      p Trial Balloon Taiwan 是一個分析台灣各家報社新聞的網站，每天定時爬蟲各家報社之政治新聞，藉由 Google NLP 的情緒分析功能，可以知道該新聞是否使用許多情緒性字詞，企圖帶動社會風向。
+      h2 功能介紹
+      p 目前資料庫從 2019 年 12 月 1 日開始建置，報社以中央社、中時電子報以及自由電子報為主，未來會新增其他報社以及 2019 年 12 月 1 日以前的新聞。
+      h3 新聞比一比
+      p 輸入關鍵字以及時間查詢區間進行搜尋，系統會以中央社為基準，挑出與中央社該新聞相似度最高的新聞進行分析，使用者可以得知該報社對於該關鍵字的新聞之分析結果。 
+      h3 報社比一比 
+      p 與新聞比一比相似，使用者可以輸入關鍵字以及時間查詢區間進行搜尋，得到各家報社對於該關鍵字的新聞之情緒分析，可以觀察報社對於該關鍵字的新聞篇幅數，以及情緒分數與時間的關係。
+      h3 記者比一比
+      p 記者比一比可以查詢各家報社之特定記者，關於該關鍵字的所有報導，以及該記者對於該關鍵字的新聞之情緒分析。
+    div(style='height: calc(100vh - 80px - 30px - 32px)')
+      img(id='home_pic' src="/images/home.jpg", alt="about TBT" style='padding: unset')
+      p(style='text-align: center') Photo by davide ragusa on Unsplash
