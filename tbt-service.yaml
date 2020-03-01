@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbt-service
+spec:
+  ports:
+  - port: 3000
+    nodePort: 30300
+    protocol: TCP
+    targetPort: tbt-port
+  selector:
+    app: tbt-deployment
+  type: NodePort

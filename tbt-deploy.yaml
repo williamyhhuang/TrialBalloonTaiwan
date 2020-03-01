@@ -1,0 +1,106 @@
+# this pvc will be used to store downloaded init.sql file
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: init-script
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbt-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbt-deployment
+  template:
+    metadata:
+      labels:
+        app: tbt-deployment
+    spec:
+      initContainers:  # this init container download init.sql file using "curl -o <downloaded file name with path> <download url>" command.
+        - name: init-script-downloader
+          image: appropriate/curl
+          args:
+          - "curl"
+          - "-o"
+          - "/data/tbt_data_20200229.sql"
+          - "https://raw.githubusercontent.com/williamyhhuang/TrialBalloonTaiwan/k8s/webCrawing/sql/tbt_data_20200229.sql"
+          volumeMounts:
+          - name: init-script # mount the volume where downloaded file will be saved
+            mountPath: /data
+      containers:
+        - name: tbt
+          image: williamyhhuang/tbt:1.1
+          imagePullPolicy: Always
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: database
+            - name: MYSQL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: port
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: user
+            - name: MYSQL_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: user_password
+          ports:
+          - name: tbt-port
+            containerPort: 3000          
+        - name: mysql
+          image: mysql
+          ports:
+          - name: mysql-port
+            containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: database
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: root_password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret-from-yaml
+                  key: user_password
+          volumeMounts:
+            - name: init-script
+              mountPath: /data
+            - name: mysql-initprocess
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-initprocess
+          configMap:
+            name: mysql-initprocess
+        - name: init-script # this volume holds downloaded init.sql file.
+          persistentVolumeClaim:
+            claimName: init-script
+      imagePullSecrets: 
+        - name: regsecret  
