@@ -39,7 +39,7 @@ ADD package.json /webcraw/
 RUN npm i && npm i puppeteer@2.0.0 \
     && npm i pm2 -g \
     && pm2 update \
-    && groupadd -r jenkins && useradd -r -g $USER -G audio,video jenkins \
+    && groupadd -r jenkins && useradd -r -g jenkins -G audio,video jenkins \
     && mkdir -p /home/jenkins/Downloads \
     && chown -R jenkins:jenkins /home/jenkins \
     && chown -R jenkins:jenkins /webcraw/node_modules
