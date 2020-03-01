@@ -39,14 +39,14 @@ ADD package.json /webcraw/
 RUN npm i && npm i puppeteer@2.0.0 \
     && npm i pm2 -g \
     && pm2 update \
-#     && groupadd -r root && useradd -r -g root -G audio,video root \
-#     && mkdir -p /home/root/Downloads \
-#     && chown -R root:root /home/root \
-#     && chown -R root:root /webcraw/node_modules
-# USER $USER
+    && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && chown -R pptruser:pptruser /webcraw/node_modules
 COPY . /webcraw
 ENV GOOGLE_APPLICATION_CREDENTIALS="./google_nlp/google.json"
 EXPOSE 5000
+USER pptruser
 CMD ["pm2-runtime", "process.yaml"]
 
 # FROM node:10.15.3
