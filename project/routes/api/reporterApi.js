@@ -206,7 +206,14 @@ function category2(start, end) {
       } else if (d == 29 && m == 2) {
         d = d - 28;
         m = m + 1;
+      } else if (d == 29 && m == 2 && y % 4 == 0) {
+        d = d;
+        m = m;
+      } else if (d == 30 && m == 2 && y % 4 == 0) {
+        d = d - 29;
+        m = m + 1;
       }
+      
       if (m == 13) {
         m = m - 12;
         y = y + 1;

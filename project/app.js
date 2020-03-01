@@ -18,7 +18,15 @@ var selectReporterApiRouter = require('./routes/api/selectReporter');
 var homeRouter = require('./routes/home');
 var aboutRouter = require('./routes/about');
 var app = express();
+var mysql = require('./util/mysqlcon');
 
+mysql.getConnection(function(err, connect){
+  if (err){
+    console.log('mysql is not connected')
+  }else{
+    console.log('mysql connected')
+  }
+})
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
