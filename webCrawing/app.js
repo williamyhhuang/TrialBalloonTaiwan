@@ -89,9 +89,9 @@ let updateDictJob = new CronJob('0 0 3 * * 1', async function () {
     console.log(e);
   }
 })
-ltn.new('https://news.ltn.com.tw/list/breakingnews/politics')
-// webCrawlingJob.start();
-// updateDictJob.start();
+
+webCrawlingJob.start();
+updateDictJob.start();
 function getTime() {
   return new Promise((resolve, reject) => {
     let t = new Date();
