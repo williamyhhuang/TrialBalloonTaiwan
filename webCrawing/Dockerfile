@@ -39,11 +39,11 @@ ADD package.json /webcraw/
 RUN npm i && npm i puppeteer@2.0.0 \
     && npm i pm2 -g \
     && pm2 update \
-    && groupadd -r root && useradd -r -g root -G audio,video root \
-    && mkdir -p /home/root/Downloads \
-    && chown -R root:root /home/root \
-    && chown -R root:root /webcraw/node_modules
-USER $USER
+#     && groupadd -r root && useradd -r -g root -G audio,video root \
+#     && mkdir -p /home/root/Downloads \
+#     && chown -R root:root /home/root \
+#     && chown -R root:root /webcraw/node_modules
+# USER $USER
 COPY . /webcraw
 ENV GOOGLE_APPLICATION_CREDENTIALS="./google_nlp/google.json"
 EXPOSE 5000
