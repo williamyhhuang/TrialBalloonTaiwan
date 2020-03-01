@@ -292,7 +292,7 @@ function getLtnUrlNew(host) {
   return new Promise(async (resolve, reject) => {
     try {
       const browser = await puppeteer.launch({
-        // args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless: true
       });
       const page = await browser.newPage();
