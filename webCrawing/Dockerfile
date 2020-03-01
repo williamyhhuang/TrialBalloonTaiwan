@@ -36,9 +36,14 @@ ENTRYPOINT ["dumb-init", "--"]
 # USER pptruser
 #pptr end
 ADD package.json /webcraw/
-RUN npm i && npm i puppeteer@2.0.0
-RUN npm i pm2 -g
-RUN pm2 update
+RUN npm i && npm i puppeteer@2.0.0 \
+    && npm i pm2 -g \
+    && pm2 update \
+    && groupadd -r $USER && useradd -r -g $USER -G audio,video $USER \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R $USER:$USER /home/pptruser \
+    && chown -R $USER:$USER /webcraw/node_modules
+USER $USER
 COPY . /webcraw
 ENV GOOGLE_APPLICATION_CREDENTIALS="./google_nlp/google.json"
 EXPOSE 5000
