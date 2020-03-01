@@ -39,10 +39,10 @@ ADD package.json /webcraw/
 RUN npm i && npm i puppeteer@2.0.0 \
     && npm i pm2 -g \
     && pm2 update \
-    && groupadd -r $USER && useradd -r -g $USER -G audio,video $USER \
-    && mkdir -p /home/pptruser/Downloads \
-    && chown -R $USER:$USER /home/pptruser \
-    && chown -R $USER:$USER /webcraw/node_modules
+    && groupadd -r jenkins && useradd -r -g $USER -G audio,video jenkins \
+    && mkdir -p /home/jenkins/Downloads \
+    && chown -R jenkins:jenkins /home/jenkins \
+    && chown -R jenkins:jenkins /webcraw/node_modules
 USER $USER
 COPY . /webcraw
 ENV GOOGLE_APPLICATION_CREDENTIALS="./google_nlp/google.json"
