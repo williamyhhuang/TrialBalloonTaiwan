@@ -1,4 +1,4 @@
 /webCrawling/scripts/test.js
 node_modules
 .env
-/webCrawling/google_nlp
+/google_nlp

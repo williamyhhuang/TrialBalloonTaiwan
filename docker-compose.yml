@@ -40,7 +40,7 @@ services:
       context: ./webCrawling
       dockerfile: Dockerfile
     volumes:
-      - "./webCrawling/google_nlp:/webcraw/google_nlp"
+      - "./google_nlp:/webcraw/google_nlp"
     depends_on: 
       - mysql
     ports:
