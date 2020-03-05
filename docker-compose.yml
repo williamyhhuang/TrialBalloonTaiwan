@@ -10,6 +10,9 @@ services:
   #     - "./init_nginx/conf.d:/etc/nginx/conf.d"
   #   depends_on:
   #     - tbt
+  redis:
+    image: redis
+    container_name: redis
   mysql:
     image: mysql
     environment:
@@ -18,7 +21,7 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
-      - "./webCrawing/sql:/data"
+      - "./webCrawling/sql:/data"
       - "./init_mysql:/docker-entrypoint-initdb.d/"
   tbt:
     restart: always
@@ -34,10 +37,10 @@ services:
     restart: always
     container_name: tbt_webcraw
     build:
-      context: ./webCrawing
+      context: ./webCrawling
       dockerfile: Dockerfile
     volumes:
-      - "./google_nlp:/webcraw/google_nlp"
+      - "./webCrawling/google_nlp:/webcraw/google_nlp"
     depends_on: 
       - mysql
     ports:

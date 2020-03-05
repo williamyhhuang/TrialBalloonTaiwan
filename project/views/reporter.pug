@@ -9,15 +9,15 @@ block content
         div(style='display: flex')
           div(id='one_reporter_media')
             div(id='media') 報社 - 記者 :
-            select(id='mediaSelect1' onchange='change("mediaSelect1","selectReporter1")')
+            select(id='selectMedia1' onchange='change("selectMedia1","selectReporter1")')
               option(value='cna' selected) 中央社
               option(value='chtimes') 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter1')
             p(style='margin:0px; line-height:30px;') VS 
-            select(id='mediaSelect2' onchange='change("mediaSelect2","selectReporter2")')
-              option(value='cna' selected) 中央社
-              option(value='chtimes') 中時電子報
+            select(id='selectMedia2' onchange='change("selectMedia2","selectReporter2")')
+              option(value='cna') 中央社
+              option(value='chtimes' selected) 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter2') 
       div(style='display:flex;font-size:20px;margin-left:20px;') 關鍵字 :

@@ -39,22 +39,20 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
 
     content.appendChild(key);
     content.appendChild(start);
-    // document.body.appendChild(key);
-    // document.body.appendChild(start);
 
     if (data.result == false) {
       let error = document.createElement('div');
       error.id = 'error'
       error.innerHTML = '<h2>' + '沒有關於該關鍵字的新聞' + '<h2>' + '<h2>' + '請更改關鍵字或稍後再搜尋' + '<h2>';
       content.style.height = 'calc(100vh - 28px  - 78px - 148px)';
-      // document.body.appendChild(error);
+
       content.appendChild(error);
     } else {
       let content = document.getElementById('content');
-      let month = Object.keys(data.result.cna[0]);
-      let cna = mediaData(data.result.cna[0]);
-      let chtimes = mediaData(data.result.chtimes[0]);
-      let ltn = mediaData(data.result.ltn[0]);
+      let month = data.monthSet;
+      let cna = categorizeData(data.result.cna[0]);
+      let chtimes = categorizeData(data.result.chtimes[0]);
+      let ltn = categorizeData(data.result.ltn[0]);
 
       // 圖表div建立
       let container = document.createElement('div');
@@ -73,7 +71,7 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
       container.appendChild(scoreDiv);
       container.appendChild(magDiv);
       content.appendChild(container);
-      // document.body.appendChild(container);
+
       let myScoreChart = createScoreChart(chartScore, month, cna, chtimes, ltn);
       let myMagChart = createMagChart(chartMag, month, cna, chtimes, ltn);
       // 數據切換
@@ -84,13 +82,13 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
       let check = false;
       but.addEventListener('click', function () {
         let month = Object.keys(data.result.cna[0]);
-        let cna = mediaData(data.result.cna[0]);
-        let chtimes = mediaData(data.result.chtimes[0]);
-        let ltn = mediaData(data.result.ltn[0]);
+        let cna = categorizeData(data.result.cna[0]);
+        let chtimes = categorizeData(data.result.chtimes[0]);
+        let ltn = categorizeData(data.result.ltn[0]);
         let date = Object.keys(data.result.cna[1]);
-        let cna2 = mediaData(data.result.cna[1]);
-        let chtimes2 = mediaData(data.result.chtimes[1]);
-        let ltn2 = mediaData(data.result.ltn[1]);
+        let cna2 = categorizeData(data.result.cna[1]);
+        let chtimes2 = categorizeData(data.result.chtimes[1]);
+        let ltn2 = categorizeData(data.result.ltn[1]);
 
         if (check == false) {
           but.innerHTML = '切換為月份';
@@ -127,20 +125,18 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
 
       // 新增回到置頂按鈕
       let goTop = document.createElement('div');
-      goTop.id = 'goTop';
-      let a = document.createElement('a');
-      a.href = `#source`;
-      a.innerHTML = 'Go Top';
-      goTop.appendChild(a)
+      goTopBtn(goTop);
+
       content.appendChild(source);
       content.appendChild(goTop);
       goTop.onscroll = scroll();
       goTop.style.display = 'none';
-
-
     }
   })
 
+////// 以下為 function //////
+
+// 顯示 goTop 按鈕 
 function scroll() {
   window.addEventListener('scroll', function (e) {
     let position = window.scrollY;
@@ -151,8 +147,8 @@ function scroll() {
     }
   })
 }
-
-function collect(data) {
+// 將 Score 及 Magnitude 分類成兩個矩陣，用在圖表呈現 
+function seperateData(data) {
   let set = Object.values(data);
   let score = [];
   let mag = [];
@@ -165,14 +161,14 @@ function collect(data) {
     magnitude: mag
   }
 }
-
+// 載入動畫 
 function loading(data) {
   if (data != undefined) {
     document.getElementById('loader').style.display = 'none';
   }
 }
-
-function mediaData(data) {
+// 將資料照月份/日期分類 
+function categorizeData(data) {
   let result = {};
   let month = Object.keys(data);
   let newsData = Object.values(data);
@@ -194,11 +190,11 @@ function mediaData(data) {
   }
   return result;
 }
-
+// 創建圖表 
 function createScoreChart(chart, month, cna, chtimes, ltn) {
-  let cnaData = collect(cna);
-  let chtimesData = collect(chtimes);
-  let ltnData = collect(ltn);
+  let cnaData = seperateData(cna);
+  let chtimesData = seperateData(chtimes);
+  let ltnData = seperateData(ltn);
   return new Chart(chart, {
     type: 'bar',
     data: {
@@ -280,11 +276,10 @@ function createScoreChart(chart, month, cna, chtimes, ltn) {
     }
   });
 }
-
 function createMagChart(chart, month, cna, chtimes, ltn) {
-  let cnaData = collect(cna);
-  let chtimesData = collect(chtimes);
-  let ltnData = collect(ltn);
+  let cnaData = seperateData(cna);
+  let chtimesData = seperateData(chtimes);
+  let ltnData = seperateData(ltn);
   return new Chart(chart, {
     type: 'bar',
     data: {
@@ -365,59 +360,65 @@ function createMagChart(chart, month, cna, chtimes, ltn) {
     }
   });
 }
-
+// 切換圖表 
 function changeScoreChart(chart, date, cna, chtimes, ltn, check) {
-  let cnaData = collect(cna);
-  let chtimesData = collect(chtimes);
-  let ltnData = collect(ltn);
+  let cnaData = seperateData(cna);
+  let chtimesData = seperateData(chtimes);
+  let ltnData = seperateData(ltn);
   chart.data.labels = date;
   chart.data.datasets[0].data = cnaData.score;
   chart.data.datasets[1].data = chtimesData.score;
   chart.data.datasets[2].data = ltnData.score;
   if (check) {
-    chart.options.scales.xAxes[0].time.unit = 'day';
-    chart.options.scales.xAxes[0].time.stepSize = 7;
-    chart.options.scales.xAxes[0].time.parser = 'YYYY/MM/DD';
-    chart.options.scales.xAxes[0].time.displayFormats = {
-      day: 'YYYY-M-DD'
-    };
+    chart.options.scales.xAxes[0].time = {
+      unit: 'day',
+      stepSize: 7,
+      parser: 'YYYY/MM/DD',
+      displayFormats: {
+        day: 'YYYY-M-DD'
+      }
+    }
   } else if (check == false) {
-    chart.options.scales.xAxes[0].time.unit = 'month';
-    chart.options.scales.xAxes[0].time.stepSize = 1;
-    chart.options.scales.xAxes[0].time.parser = 'YYYY/MM';
-    chart.options.scales.xAxes[0].time.displayFormats = {
-      month: 'YYYY-MM'
-    };
+    chart.options.scales.xAxes[0].time = {
+      unit: 'month',
+      stepSize: 1,
+      parser: 'YYYY/MM',
+      displayFormats: {
+        month: 'YYYY-MM'
+      }
+    }
   }
   chart.update()
 }
-
 function changeMagChart(chart, date, cna, chtimes, ltn, check) {
-  let cnaData = collect(cna);
-  let chtimesData = collect(chtimes);
-  let ltnData = collect(ltn);
+  let cnaData = seperateData(cna);
+  let chtimesData = seperateData(chtimes);
+  let ltnData = seperateData(ltn);
   chart.data.labels = date;
   chart.data.datasets[0].data = cnaData.magnitude;
   chart.data.datasets[1].data = chtimesData.magnitude;
   chart.data.datasets[2].data = ltnData.magnitude;
   if (check) {
-    chart.options.scales.xAxes[0].time.unit = 'day';
-    chart.options.scales.xAxes[0].time.stepSize = 7;
-    chart.options.scales.xAxes[0].time.parser = 'YYYY/MM/DD';
-    chart.options.scales.xAxes[0].time.displayFormats = {
-      day: 'YYYY-M-DD'
-    };
+    chart.options.scales.xAxes[0].time = {
+      unit: 'day',
+      stepSize: 7,
+      parser: 'YYYY/MM/DD',
+      displayFormats: {
+        day: 'YYYY-M-DD'
+      }
+    }
   } else if (check == false) {
-    chart.options.scales.xAxes[0].time.unit = 'month';
-    chart.options.scales.xAxes[0].time.stepSize = 1;
-    chart.options.scales.xAxes[0].time.parser = 'YYYY/MM';
-    chart.options.scales.xAxes[0].time.displayFormats = {
-      month: 'YYYY-MM'
-    };
+    chart.options.scales.xAxes[0].time = {
+      unit: 'month',
+      stepSize: 1,
+      parser: 'YYYY/MM',
+      displayFormats: {
+        month: 'YYYY-MM'
+      }
+    }
   }
   chart.update()
 }
-
 function changeChartStyle(chart, set) {
   if (set == true) {
     chart.data.datasets[0].borderWidth = 1;
@@ -440,7 +441,6 @@ function changeChartStyle(chart, set) {
   }
 
 }
-
 // 將所有新聞整理到一個矩陣裡
 function collectNews(data) {
   let month = Object.keys(data);
@@ -453,7 +453,7 @@ function collectNews(data) {
   }
   return news;
 }
-
+// 新增新聞表 
 function createTable(media, data, source) {
 
   let tableId;
@@ -469,53 +469,30 @@ function createTable(media, data, source) {
   }
   let mediaDiv = document.createElement('div');
   let res = collectNews(data);
-  console.log(media, res)
+
   mediaDiv.innerHTML = `<a id=${tableId}Title><h3>${media} : 共 ${res.length} 則新聞</h3></a>`
   mediaDiv.style.paddingLeft = '20px';
   mediaDiv.style.marginTop = '30px';
+  // 整張表格
   let table = document.createElement('div');
-  table.className = 'table';
-  table.style.flexDirection = 'column';
-  table.style.borderWidth = '3px';
-  table.style.margin = '0px auto 50px';
-  table.style.width = '95%';
+  table.className = 'mediaTable';
+  // 表格標題
   let top = document.createElement('div');
   top.style.display = 'flex';
-  let time = document.createElement('div');
-  time.innerHTML = '時間';
-  time.className = 'mediaTable';
-  time.style.borderBottomStyle = 'solid';
-  time.style.width = '20%';
+  let date = document.createElement('div');
+  createTableTitle_date(date, '時間');
   let title = document.createElement('div');
-  title.innerHTML = '標題';
-  title.className = 'mediaTable';
-  title.style.width = '100%';
-  title.style.borderStyle = 'solid';
-  title.style.borderTopStyle = 'none';
+  createTableTitle_title(title, '標題');
   let url = document.createElement('div');
-  url.innerHTML = '連結';
-  url.className = 'mediaTable';
-  url.style.width = '100%';
-  url.style.borderBottomStyle = 'solid';
+  createTableTitle_url(url, '連結');
   let score = document.createElement('div');
-  score.innerHTML = 'Score';
-  score.className = 'mediaTable';
-  score.style.width = '19%';
-  score.style.borderStyle = 'solid';
-  score.style.borderTopStyle = 'none';
+  createTableTitle_score(score, 'Score')
   let mag = document.createElement('div');
-  mag.innerHTML = 'Magnitude';
-  mag.className = 'mediaTable';
-  mag.style.width = '19%';
-  mag.style.borderBottomStyle = 'solid';
-  top.appendChild(time);
-  top.appendChild(title);
-  top.appendChild(url);
-  top.appendChild(score);
-  top.appendChild(mag);
+  createTableTitle_mag(mag, 'Magnitude');
+  append(top, date, title, url, score, mag)
   table.appendChild(top);
 
-  // 新增新聞
+  // 新增前五則新聞
   for (let j = 0; j < 5; j++) {
     if (res[j] == null) {
       break;
@@ -524,54 +501,25 @@ function createTable(media, data, source) {
     news.style.display = 'flex';
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
-    dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '20%';
-    dateDiv.style.padding = '2px 0px';
-    let titleDiv = document.createElement('div');
-    titleDiv.className = 'mediaTable';
-    titleDiv.style.width = '100%';
-    titleDiv.style.padding = '2px 0px';
-    titleDiv.style.borderLeftStyle = 'solid';
-    titleDiv.style.borderRightStyle = 'solid';
-    let urlDiv = document.createElement('div');
-    urlDiv.className = 'mediaTable';
-    urlDiv.style.width = '100%';
-    urlDiv.style.padding = '2px 0px';
-    let scoreDiv = document.createElement('div');
-    scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '19%';
-    scoreDiv.style.padding = '2px 0px';
-    scoreDiv.style.borderLeftStyle = 'solid';
-    scoreDiv.style.borderRightStyle = 'solid';
-    let magDiv = document.createElement('div');
-    magDiv.className = 'mediaTable';
-    magDiv.style.width = '19%';
-    magDiv.style.padding = '2px 0px';
     let date = res[j].date;
+    createTable_date(dateDiv, date);
+    let titleDiv = document.createElement('div');
     let title = res[j].title;
+    createTable_title(titleDiv, title);
+    let urlDiv = document.createElement('div');
     let url = res[j].url;
+    createTable_url(urlDiv, url)
+    let scoreDiv = document.createElement('div');
     let score = Number(res[j].score).toFixed(2);
+    createTable_score(scoreDiv, score);
+    let magDiv = document.createElement('div');
     let mag = Number(res[j].magnitude).toFixed(2);
-    dateDiv.innerHTML = date;
-    titleDiv.innerHTML = title;
-    // urlDiv.innerHTML = url;
-    scoreDiv.innerHTML = score;
-    magDiv.innerHTML = mag;
-    let a = document.createElement('a');
-    a.href = `${url}`;
-    a.target = '_blank';
-    a.style.textDecoration = 'none';
-    a.style.wordBreak = 'break-all';
-    let data = document.createTextNode(url);
-    a.appendChild(data);
-    urlDiv.appendChild(a);
-    news.appendChild(dateDiv);
-    news.appendChild(titleDiv);
-    news.appendChild(urlDiv);
-    news.appendChild(scoreDiv);
-    news.appendChild(magDiv);
+    createTable_mag(magDiv, mag);
+    append(news, dateDiv, titleDiv, urlDiv, scoreDiv, magDiv);
     table.appendChild(news);
   }
+
+  // 新增其餘新聞
   let subDiv = document.createElement('div');
   subDiv.id = tableId;
   subDiv.style.display = 'none';
@@ -583,74 +531,27 @@ function createTable(media, data, source) {
     news.style.display = 'flex';
     news.style.justifyContent = 'space-around';
     let dateDiv = document.createElement('div');
-    dateDiv.className = 'mediaTable';
-    dateDiv.style.width = '20%';
-    dateDiv.style.padding = '2px 0px';
-    let titleDiv = document.createElement('div');
-    titleDiv.className = 'mediaTable';
-    titleDiv.style.width = '100%';
-    titleDiv.style.padding = '2px 0px';
-    titleDiv.style.borderLeftStyle = 'solid';
-    titleDiv.style.borderRightStyle = 'solid';
-    let urlDiv = document.createElement('div');
-    urlDiv.className = 'mediaTable';
-    urlDiv.style.width = '100%';
-    urlDiv.style.padding = '2px 0px';
-    let scoreDiv = document.createElement('div');
-    scoreDiv.className = 'mediaTable';
-    scoreDiv.style.width = '19%';
-    scoreDiv.style.padding = '2px 0px';
-    scoreDiv.style.borderLeftStyle = 'solid';
-    scoreDiv.style.borderRightStyle = 'solid';
-    let magDiv = document.createElement('div');
-    magDiv.className = 'mediaTable';
-    magDiv.style.width = '19%';
-    magDiv.style.padding = '2px 0px';
     let date = res[j].date;
+    createTable_date(dateDiv, date);
+    let titleDiv = document.createElement('div');
     let title = res[j].title;
+    createTable_title(titleDiv, title);
+    let urlDiv = document.createElement('div');
     let url = res[j].url;
+    createTable_url(urlDiv, url)
+    let scoreDiv = document.createElement('div');
     let score = Number(res[j].score).toFixed(2);
+    createTable_score(scoreDiv, score);
+    let magDiv = document.createElement('div');
     let mag = Number(res[j].magnitude).toFixed(2);
-    dateDiv.innerHTML = date;
-    titleDiv.innerHTML = title;
-    scoreDiv.innerHTML = score;
-    magDiv.innerHTML = mag;
-    let a = document.createElement('a');
-    a.href = `${url}`;
-    a.target = '_blank';
-    a.style.textDecoration = 'none';
-    a.style.wordBreak = 'break-all';
-    let data = document.createTextNode(url);
-    a.appendChild(data);
-    urlDiv.appendChild(a);
-    news.appendChild(dateDiv);
-    news.appendChild(titleDiv);
-    news.appendChild(urlDiv);
-    news.appendChild(scoreDiv);
-    news.appendChild(magDiv);
+    createTable_mag(magDiv, mag);
+    append(news, dateDiv, titleDiv, urlDiv, scoreDiv, magDiv);
     subDiv.appendChild(news);
   }
   table.appendChild(subDiv);
 
   // 新增切換訊息顯示按鈕
   let change = document.createElement('div');
-  change.id = 'changeTable';
-  change.innerHTML = '展開以顯示全部';
-  let checkTable = false;
-  change.addEventListener('click', function () {
-    if (checkTable == false) {
-      change.innerHTML = '收合';
-      checkTable = true;
-      document.getElementById(tableId).style.display = 'block';
-    } else {
-      change.innerHTML = '展開以顯示全部';
-      checkTable = false;
-      document.getElementById(tableId).style.display = 'none';
-    }
-  })
-
-  source.appendChild(mediaDiv);
-  source.appendChild(change);
-  source.appendChild(table);
+  spreadBtn(change, tableId);
+  append(source, mediaDiv, change, table)
 }
-

@@ -44,6 +44,7 @@ RUN npm i && npm i puppeteer@2.0.0 \
     && chown -R pptruser:pptruser /home/pptruser \
     && chown -R pptruser:pptruser /webcraw/node_modules
 COPY . /webcraw
+RUN chmod 666 ./scripts/similarity/dict2.txt
 ENV GOOGLE_APPLICATION_CREDENTIALS="./google_nlp/google.json"
 EXPOSE 5000
 USER pptruser

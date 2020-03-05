@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var CronJob = require('cron').CronJob;
-
+var moment = require('moment');
 const ltn = require('./scripts/ltn');
 const chtimes = require('./scripts/chtimes');
 const cna = require('./scripts/cna');
@@ -55,17 +55,17 @@ let webCrawlingJob = new CronJob('0 0 */2 * * *', async function () {
   try {
     cna.new('https://www.cna.com.tw/cna2018api/api/simplelist/categorycode/aipl/pageidx/')
     .then(async () => {
-      let t = await getTime();
+      let t = moment().format('YYYY-MM-DD-HH:mm:ss');
       console.log(t, 'cna new webCrawling is done');
       return ltn.new('https://news.ltn.com.tw/list/breakingnews/politics')
     })
     .then(async () => {
-      let t = await getTime();
+      let t = moment().format('YYYY-MM-DD-HH:mm:ss');
       console.log(t, 'ltn new webCrawling is done');
       return chtimes.new('https://www.chinatimes.com/politic/total?');
     })
     .then(async () => {
-      let t = await getTime();
+      let t = moment().format('YYYY-MM-DD-HH:mm:ss');
       console.log(t, 'chtimes new webCrawling is done');
       console.log(t, 'all webcrawling new is done');
     })
@@ -82,8 +82,8 @@ let updateDictJob = new CronJob('0 0 3 * * 1', async function () {
         return updateTokenize();
       })
       .then(async() => {
-        let t = await getTime();
-        console.log(t, 'updating dict and tokenize is done');
+        let t = moment().format('YYYY-MM-DD-HH:mm:ss');
+        return console.log(t, 'updating dict and tokenize is done');
       })
   } catch (e) {
     console.log(e);

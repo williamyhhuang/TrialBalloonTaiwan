@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('../../util/mysqlcon');
-const similarity = require('compute-cosine-similarity');
+const cst = require('../../util/consts');
+const db = require('./api_db');
+const func = require('./api_func');
 
 router.use("/", function (req, res, next) {
-
-  res.set("Access-Control-Allow-Origin", "127.0.0.1");
-  res.set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
-  res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.set("Access-Control-Allow-Credentials", "true");
+  res.set("Access-Control-Allow-Origin", cst.HOST_NAME);
+  res.set("Access-Control-Allow-Headers", "Origin, Content-Type");
+  res.set("Access-Control-Allow-Methods", "GET");
   next();
 });
 
@@ -27,32 +26,31 @@ router.get('/', async function (req, res, next) {
       result: false
     })
   } else {
-    Promise.all([news('cna', keyword, start, end), news('chtimes', keyword, start, end), news('ltn', keyword, start, end)]).then((values) => {
+    Promise.all([db.getNews_news('cna', keyword, start, end), db.getNews_news('chtimes', keyword, start, end), db.getNews_news('ltn', keyword, start, end)]).then((values) => {
       let set = values[0];
       let chtimes = values[1];
       let ltn = values[2];
 
       let cna = [];
-      // CNA隨機取四則新聞
+      // CNA隨機取四則新聞，各家報社的新聞與這四則新聞比較，取出最相似的新聞
       for (let i = 0; i < 4; i++) {
-        let oneNews = set[Math.floor(Math.random() * set.length)];
-        cna.push(oneNews);
+        let eachNews = set[Math.floor(Math.random() * set.length)];
+        cna.push(eachNews);
       }
-
+      // 如果中央社沒有該關鍵字的新聞，回傳 false
       if (set == false) {
-
         res.json({
           keyword: input,
           start: start,
           end: end,
           result: false
         })
-
+        // 如果中時電子報沒有關於該關鍵字的新聞
       } else if (chtimes == false) {
         let result = [];
-        for (let i = 0; i < cna.length; i++) {
-          let cnaLtn = comparison(cna[i], ltn);
 
+        for (let i = 0; i < cna.length; i++) {
+          let cnaLtn = func.comparison(cna[i], ltn);
           let cnaData = {
             media: cna[i].media,
             date: cna[i].date,
@@ -62,7 +60,6 @@ router.get('/', async function (req, res, next) {
             score: Number(cna[i].score).toFixed(2),
             magnitude: Number(cna[i].magnitude).toFixed(2)
           }
-
           result.push({
             chtimes: false,
             cna: cnaData,
@@ -76,12 +73,11 @@ router.get('/', async function (req, res, next) {
           end: end,
           result: result
         })
-
+        // 如果自由電子報沒有關於該關鍵字的新聞
       } else if (ltn == false) {
         let result = [];
         for (let i = 0; i < cna.length; i++) {
-          let cnaChtimes = comparison(cna[i], chtimes);
-
+          let cnaChtimes = func.comparison(cna[i], chtimes);
           let cnaData = {
             media: cna[i].media,
             date: cna[i].date,
@@ -105,13 +101,12 @@ router.get('/', async function (req, res, next) {
           end: end,
           result: result
         })
-
+        // 三家報社都有關於該關鍵字的新聞
       } else {
         let result = [];
         for (let i = 0; i < cna.length; i++) {
-          let cnaChtimes = comparison(cna[i], chtimes);
-          let cnaLtn = comparison(cna[i], ltn);
-
+          let cnaChtimes = func.comparison(cna[i], chtimes);
+          let cnaLtn = func.comparison(cna[i], ltn);
           let cnaData = {
             media: cna[i].media,
             date: cna[i].date,
@@ -121,7 +116,6 @@ router.get('/', async function (req, res, next) {
             score: Number(cna[i].score).toFixed(2),
             magnitude: Number(cna[i].magnitude).toFixed(2)
           }
-
           result.push({
             chtimes: cnaChtimes,
             cna: cnaData,
@@ -145,74 +139,17 @@ router.get('/', async function (req, res, next) {
 
 module.exports = router;
 
-function news(media, input, start, end) {
-  return new Promise((resolve, reject) => {
-    let mediaName;
-    let sql = `SELECT n.*, a.tokenize FROM tbt.news AS n INNER JOIN tbt.article AS a ON n.media = '${media}' AND a.news_url=n.url`;
-    for (let i = 0; i < input.length; i++) {
-      sql += ` AND a.article LIKE '%${input[i]}%'`
-    }
-    sql += ` AND TO_DAYS(n.date)>= TO_DAYS('${start}') AND TO_DAYS(n.date) < TO_DAYS('${end}')`;
-
-    switch (media) {
-      case 'cna':
-        mediaName = '中央社';
-        break;
-      case 'chtimes':
-        mediaName = '中時電子報';
-        break;
-      case 'ltn':
-        mediaName = '自由電子報';
-    }
-
-    mysql.query(sql, function (err, result) {
-      if (err) throw err;
-      if (result.length == 0) {
-        resolve(false);
-      } else {
-        let data = [];
-        for (let i = 0; i < result.length; i++) {
-          let reporterSql = `SELECT r.name FROM reporter AS r, reporter_has_news AS rn WHERE rn.news_id='${result[i].id}' AND r.id = rn.reporter_id`;
-          mysql.query(reporterSql, function (err, reporter) {
-            if (err) throw err;
-
-            let name = [];
-            for (let j = 0; j < reporter.length; j++) {
-              name.push(reporter[j].name);
-            }
-            let date = result[i].date;
-            date = date.replace(/-/g, '/');
-
-            data.push({
-              media: mediaName,
-              date: date,
-              reporter: name.join(' '),
-              title: result[i].title,
-              tokenize: result[i].tokenize,
-              url: result[i].url,
-              score: result[i].score,
-              magnitude: result[i].magnitude
-            })
-            if (i == result.length - 1) {
-              resolve(data);
-            }
-          })
-        }
-      }
-    })
-  })
-}
-
-// 比較新聞相似度
+// 根據每篇的新聞斷詞，比較新聞相似度，並挑出相似度最高的那篇
 function comparison(cna, media) {
 
   if (media == false) {
     return false
   } else {
     let result = media[0];
-    let max = CalSimilarity((cna.tokenize).split(','), (media[0].tokenize).split(','));
+    // 原斷詞資料為字串，須改為矩陣
+    let max = CalcSimilarity((cna.tokenize).split(','), (media[0].tokenize).split(','));
     for (let i = 0; i < media.length; i++) {
-      let compare = CalSimilarity((cna.tokenize).split(','), (media[i].tokenize).split(','));
+      let compare = CalcSimilarity((cna.tokenize).split(','), (media[i].tokenize).split(','));
       if (compare > max) {
         max = compare;
         result = media[i];
@@ -229,8 +166,8 @@ function comparison(cna, media) {
     };
   }
 }
-
-function CalSimilarity(str1, str2) {
+// 計算兩篇新聞的相似度
+function CalcSimilarity(str1, str2) {
 
   str1 = str1.sort();
   str2 = str2.sort();
@@ -238,7 +175,7 @@ function CalSimilarity(str1, str2) {
   let index = [...new Set(str1)].concat([...new Set(str2)]);
 
   index = index.sort();
-  // console.log('str',str1, str2, index)
+
   let str1_mapping = {};
   let str2_mapping = {};
   str1.forEach(el => {

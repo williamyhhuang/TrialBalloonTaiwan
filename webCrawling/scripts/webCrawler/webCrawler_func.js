@@ -65,14 +65,13 @@ function cnaSelectAuthor(list, string) {
       let index2 = author.indexOf('專電');
       if (index1 >= 0) {
         end = index1;
-        // break;
       } else if (index2 >= 0) {
         end = index2;
       } else if (index3 >= 0) {
         end = index3;
       }
     }
-    // console.log(start, end)
+
     author = author.slice(start + 1, end);
     author = author.join('');
     resolve(author);
@@ -109,31 +108,6 @@ function ltnSelectAuthor(list, text) {
     } else {
       author = 'ltn';
     }
-    // if (string.indexOf('即時新聞') >= 0) {
-    //   author = '即時新聞';
-    //   author = author.split('、');
-    // } else if (string.indexOf('譯') >= 0) {
-    //   let start = string.indexOf('譯');
-    //   let end = string.indexOf('／');
-    //   author = string.slice(start + 1, end);
-    //   author = author.split('、');
-    // } else if (string.indexOf('者') >= 0) {
-    //   let start = string.indexOf('者');
-    //   let end =string.indexOf('／');
-    //   author = string.slice(start + 1, end);
-    //   author = author.split('、');
-    // } else if (string.indexOf('員') >= 0) {
-    //   let start = string.indexOf('員');
-    //   let end = string.indexOf('／');
-    //   author = string.slice(start + 1, end);
-    //   author = author.split('、');
-    // } else if (string.indexOf('／') == -1) {
-    //   author = 'ltn'
-    //   author = author.split('、');
-    // } else {
-    //   author = 'ltn'
-    //   author = author.split('、');
-    // }
     resolve(author);
   })
 }
@@ -146,22 +120,12 @@ async function analyzeArticle(text) {
 
   // Detects the sentiment of the document
   const [result] = await client.analyzeSentiment({ document });
-
   const sentiment = result.documentSentiment;
-  // console.log(`Document sentiment:`);
-  // console.log(`  Score: ${sentiment.score}`);
-  // console.log(`  Magnitude: ${sentiment.magnitude}`);
 
   return {
     score: sentiment.score,
     magnitude: sentiment.magnitude
   }
-  // const sentences = result.sentences;
-  // sentences.forEach(sentence => {
-  //     console.log(`Sentence: ${sentence.text.content}`);
-  //     console.log(`  Score: ${sentence.sentiment.score}`);
-  //     console.log(`  Magnitude: ${sentence.sentiment.magnitude}`);
-  // });
 }
 
 async function analyzeEntities(text) {
@@ -175,13 +139,10 @@ async function analyzeEntities(text) {
 
   const entities = result.entities;
   let index = [];
-  // console.log('Entities:');
+
   entities.forEach(entity => {
-    // console.log(entity.name);
-    // console.log(` - Type: ${entity.type}, Salience: ${entity.salience}`);
     if (entity.metadata && entity.metadata.wikipedia_url) {
       index.push(entity.name);
-      // console.log(` - Wikipedia URL: ${entity.metadata.wikipedia_url}$`);
     }
   });
   return index;
@@ -201,31 +162,30 @@ function deleteKeywords(keywords, exceptKeywords, cityList) {
     }
   }
   keywords.filter((item, index) => keywords.indexOf(item) === index);
-  // console.log('keywords', keywords);
 }
 
 function getChtimesUrl(host, number) {
   return new Promise((resolve, reject) => {
     let links = [];
     let url = `${host}page=${number}`;
+    let t = moment().format('YYYY-MM-DD-HH:mm:ss');
 
     request(url, (err, response, body) => {
       if (err) {
-        console.log('Error from request of getUrl', err);
+        console.log(t, 'Error from getChtimesUrl', err);
       }
       const $ = cheerio.load(body);
       $('.col .title a').each(function () {
         let link = $(this).attr('href');
         if (link.indexOf('https://www.chinatimes.com') == -1) {
           link = 'https://www.chinatimes.com' + link;
-        }  
+        }
         links.push(link)
       });
 
       for (let i = 0; i < links.length; i++) {
         if (links[i] == 'https://www.chinatimes.com') {
           links[i] = ''
-          console.log('i got it')
         }
       }
 
@@ -234,7 +194,7 @@ function getChtimesUrl(host, number) {
           arr[i] = ''
         }
       })
-      // console.log(number, links)
+
       resolve(links);
     })
   })
@@ -244,7 +204,7 @@ function getCnaUrl(host, number) {
   return new Promise((resolve, reject) => {
     let links = [];
     let url = `${host}${number}`;
-
+    let t = moment().format('YYYY-MM-DD-HH:mm:ss');
     axios.get(url)
       .then((result) => {
         let news = result.data.result.SimpleItems;
@@ -254,6 +214,8 @@ function getCnaUrl(host, number) {
           }
         }
         resolve(links)
+      }).catch((err) => {
+        console.log(t, 'Error from getCnaUrl', err)
       })
   })
 }
@@ -262,10 +224,10 @@ function getLtnUrl(host, number, startTime, endTime) {
   return new Promise((resolve, reject) => {
     let links = [];
     let url = `${host}&conditions=and&start_time=${startTime}&end_time=${endTime}&page=${number}`;
-
+    let t = moment().format('YYYY-MM-DD-HH:mm:ss');
     request(url, (err, response, body) => {
       if (err) {
-        console.log('Error from request of getUrl', err);
+        console.log(t, 'Error from getLtnUrl', err);
       }
       const $ = cheerio.load(body);
       if ($('.content .whitecon ul').text() == null) {
@@ -289,6 +251,7 @@ function getLtnUrl(host, number, startTime, endTime) {
 }
 
 function getLtnUrlNew(host) {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise(async (resolve, reject) => {
     try {
       const browser = await puppeteer.launch({
@@ -301,10 +264,6 @@ function getLtnUrlNew(host) {
           timeout: 0
         }),
       ])
-      // await page.setViewport({
-      //   width: 1200,
-      //   height: 800
-      // });
 
       await autoScroll(page)
         .then(async () => {
@@ -312,8 +271,8 @@ function getLtnUrlNew(host) {
           await browser.close();
           resolve(href);
         })
-    } catch (e) {
-      console.log('error from gettin ltn url: ', e);
+    } catch (err) {
+      console.log(t, 'Error from getLtnUrlNew: ', err);
       sendEmail('yhhuang1992@gmail.com');
     }
   })
@@ -339,6 +298,7 @@ async function autoScroll(page) {
 }
 
 function execute(newsDataPromise) {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
     setTimeout(function () {
       resolve(
@@ -348,11 +308,13 @@ function execute(newsDataPromise) {
             for (let i = 0; i < newsData.length; i++) {
               insertDataPromise.push(db.insert(newsData[i]));
             }
-            Promise.all(insertDataPromise).catch(e => {
-              console.log('error from insertDataPromise', e)
-            })
-          }).catch(error => {
-            console.log('error from newsDataPromise', error)
+            Promise.all(insertDataPromise)
+              .catch((err) => {
+                console.log(t, 'Error from insertDataPromise', err)
+              })
+          })
+          .catch((err) => {
+            console.log(t, 'Error from newsDataPromise', err)
           })
       );
     }, 10000)
@@ -360,28 +322,30 @@ function execute(newsDataPromise) {
 }
 
 // 寄信給使用者
-function sendEmail(email) {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: gmail.user,
-        pass: gmail.password
-      }
-    })
-    const mailOptions = {
-      from: gmail.user,
-      to: email,
-      subject: 'TBT爬蟲出現問題',
-      text: 'TBT爬蟲程式出現問題，請前往查看'
-    };
-    transporter.sendMail(mailOptions, (err, data) => {
-      if (err) {
-        console.log(err);
-      }
+function sendEmail(email, err) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: gmail.user,
+      pass: gmail.password
+    }
+  })
+  const mailOptions = {
+    from: gmail.user,
+    to: email,
+    subject: 'TBT爬蟲出現問題',
+    text: 'TBT爬蟲程式出現問題，請前往查看 \n' + err
+  };
+  transporter.sendMail(mailOptions, (err, data) => {
+    if (err) {
+      console.log('Error from sendEmail',err);
+      return;
+    }else{
       return console.log('Email發送OK');
-    });
+    }
+  });
 }
 
 module.exports = {

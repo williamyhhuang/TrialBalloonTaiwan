@@ -1,5 +1,10 @@
-const mysql = require('../../util/mysqlcon.js');
-
+const mysql = require('../../util/mysqlcon');
+const redis = require('redis');
+const moment = require('moment');
+const client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT
+});
 
 function insertNews(connect, media, date, title, url, score, magnitude) {
   return new Promise((resolve, reject) => {
@@ -69,8 +74,8 @@ function insertKeyword(connect, keyword, newsId) {
 
 function getReporterId(connect, author, media) {
   return new Promise((resolve, reject) => {
-    let selectReporterSql = `SELECT id FROM reporter WHERE name = '${author}'`;
-    connect.query(selectReporterSql, function (selectReporterErr, selectReporterResult) {
+    let selectReporterSql = `SELECT id FROM reporter WHERE name = ?`;
+    connect.query(selectReporterSql, [author], function (selectReporterErr, selectReporterResult) {
       if (selectReporterErr) {
         reject(selectReporterErr)
       }
@@ -92,6 +97,14 @@ function getReporterId(connect, author, media) {
             reject('err from getting reporterId');
             return;
           }
+          // 清除Redis
+          client.flushdb(function (err, reply) {
+            let t = moment().format('YYYY-MM-DD-HH:mm:ss');
+            if (err) {
+              reject(err);
+            };
+            console.log(t, "Clear Redis from reporter's name result: ", reply);
+          });
           let reporterId = insertReporterResult.insertId;
           resolve(reporterId)
         })
@@ -120,12 +133,13 @@ function insertReporterNews(connect, reporterId, newsId) {
 }
 
 function checkUrl(url) {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
-    let sql = `SELECT id FROM tbt.news WHERE url = '${url}'`;
-    mysql.query(sql, function (err, result) {
+    let sql = `SELECT id FROM tbt.news WHERE url = ?`;
+    mysql.query(sql, [url], function (err, result) {
       if (err) {
         reject('error from checking url query')
-        console.log('err from checkUrl', err)
+        console.log(t, 'Error from checkUrl', err)
       }
       if (result) {
         resolve(result)
@@ -135,12 +149,13 @@ function checkUrl(url) {
 }
 
 function getDbUrl(media) {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
-    mysql.query(`SELECT url FROM tbt.news WHERE media = '${media}' FOR UPDATE`, function (err, result) {
+    mysql.query(`SELECT url FROM tbt.news WHERE media = ? FOR UPDATE`, [media], function (err, result) {
       if (err) {
-        console.log('error from getDbUrl',err);
+        console.log(t, 'Error from getDbUrl', err);
       }
-        let urls = [];
+      let urls = [];
       for (let i = 0; i < result.length; i++) {
         urls.push(result[i].url);
       }
@@ -160,23 +175,25 @@ function insert(data) {
   let score = data.score;
   let magnitude = data.magnitude;
   let keywords = data.keyword;
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
 
   return new Promise((resolve, reject) => {
     // 新增至資料庫
     mysql.getConnection(function (err, connect) {
       if (err) {
-        console.log(err);
-          connect.release();
+        console.log(t, 'Error from getConnection', err);
+        connect.release();
       }
       connect.beginTransaction(async function (err) {
         if (err) {
-          console.log('err from beginTransaction',err);
+          console.log(t, 'Error from beginTransaction', err);
+          connect.release();
         }
         try {
           let newsId
           await insertNews(connect, media, date, title, url, score, magnitude)
             .then(async (newsTestResult) => {
-              try{
+              try {
                 newsId = newsTestResult.newsId;
                 await insertArticle(connect, article, url, tokenize);
                 for (let i = 0; i < keywords.length; i++) {
@@ -186,51 +203,33 @@ function insert(data) {
                   author[i] = author[i].trim();
                   let reporterId = await getReporterId(connect, author[i], media)
                   await insertReporterNews(connect, reporterId, newsId);
-                } 
-              }catch(e){
-                console.log(e)
+                }
+              } catch (err) {
+                console.log(t, err)
+                connect.rollback(function () {
+                  connect.release();
+                });
               }
             })
-            // .then(async () => {
-            //   try{
-            //     for (let i = 0; i < keywords.length; i++) {
-            //       await insertKeyword(connect, keywords[i], newsId);
-            //     }
-            //   }catch(e){
-            //     console.log(e)
-            //   }
-            // })
-            // .then(async () => {
-            //   try{
-            //       for (let i = 0; i < author.length; i++) {
-            //         author[i] = author[i].trim();
-            //         let reporterId = await getReporterId(connect, author[i])
-            //         await insertReporterNews(connect, reporterId, newsId);
-            //       }                
-            //   }catch(e){
-            //     console.log(e)
-            //   }
-            // })
             .then(() => {
               connect.commit(function (err) {
                 if (err) {
-                  console.log('err from commit')
+                  console.log(t, 'err from commit', err)
                   connect.rollback(function () {
                     connect.release();
                   });
-                  console.log('err from commit',err)
                 }
-                console.log(media,' success message from adding news: ', title);
+                console.log(t, ' Success message from adding news: ', media, ' ', title);
                 resolve();
                 connect.release();
               });
             })
-        } catch (e) {
-          console.log('error from transaction',e)
+        } catch (err) {
+          console.log(t, media, 'Error from transaction', err)
           connect.rollback(function () {
             connect.release();
           });
-          throw e.message
+          throw err.message
         }
       })
     })

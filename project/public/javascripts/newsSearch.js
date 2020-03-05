@@ -42,8 +42,6 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
 
     content.appendChild(key);
     content.appendChild(start);
-    // document.body.appendChild(key);
-    // document.body.appendChild(start);
 
     if (data.result == false) {
       let error = document.createElement('div');
@@ -51,7 +49,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       error.innerHTML = '<h2>' + '沒有關於該關鍵字的新聞' + '<h2>' + '<h2>' + '請更改關鍵字或稍後再搜尋' + '<h2>';
       content.style.height = 'calc(100vh - 28px  - 78px - 148px)';
       content.appendChild(error);
-      // document.body.appendChild(error);
+
     } else {
       let bigDiv = document.createElement('div');
       bigDiv.id = 'bigDiv';
@@ -68,7 +66,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       chartMag.className = 'chart';
       container.appendChild(chartScore);
       container.appendChild(chartMag);
-      // let myChart = createChart(chart, data.result[0]);
+
       let myScoreChart = createScoreChart(chartScore, data.result[0]);
       let myMagChart = createMagChart(chartMag, data.result[0]);
       bigLeftDiv.appendChild(container);
@@ -88,7 +86,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       let cna = Object.values(data.result[0].cna);
       let ltn = Object.values(data.result[0].ltn);
       let table = document.createElement('div');
-      table.className = 'table';
+      table.className = 'newsTable';
       createTable(['cat', 'chtimes', 'cna', 'ltn'], [name, chtimes, cna, ltn], table);
       bigRightDiv.appendChild(table);
 
@@ -108,7 +106,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
         let text = document.createTextNode(data.result[i].cna.title);
         subDiv.appendChild(text);
         subDiv.addEventListener('click', function () {
-          // changeChart(myChart, data.result[i]);
+
           changeScoreChart(myScoreChart, data.result[i]);
           changeMagChart(myMagChart, data.result[i]);
           changeTable(['chtimes', 'cna', 'ltn'], [chtimes, cna, ltn], table);
@@ -120,9 +118,6 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       bigDiv.appendChild(bigLeftDiv);
       bigDiv.appendChild(bigRightDiv);
       content.appendChild(bigDiv);
-      // document.body.appendChild(content);
-      // document.body.appendChild(recommendTitle);         
-      // document.body.appendChild(recommend);
 
     }
   })
@@ -188,80 +183,6 @@ function changeTable(media, mediaValue, table) {
     }
     table.appendChild(div)
   }
-}
-
-function createChart(chart, data) {
-  return new Chart(chart, {
-    type: 'bar',
-    data: {
-      labels: ['中時電子報', '中央社', '自由電子報'],
-      datasets: [{
-        label: 'Score',
-        yAxisID: 'Score',
-        data: [Number(data.chtimes.score).toFixed(2), Number(data.cna.score).toFixed(2), Number(data.ltn.score).toFixed(2)],
-        backgroundColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 99, 132, 1)',
-        ]
-      }, {
-        label: 'Magnitude',
-        yAxisID: 'Magnitude',
-        data: [Number(data.chtimes.magnitude).toFixed(2), Number(data.cna.magnitude).toFixed(2), Number(data.ltn.magnitude).toFixed(2)],
-        backgroundColor: [
-          'rgba(255, 159, 64, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(255, 159, 64, 1)',
-        ]
-      }]
-    },
-    options: {
-      title: {
-        display: true,
-        text: '報社與新聞情緒分析關係圖',
-        fontSize: 20,
-        fontStyle: 'bold',
-      },
-      scales: {
-        xAxes: [{
-          ticks: {
-            fontSize: 20
-          }
-        }],
-        yAxes: [{
-          id: 'Score',
-          type: 'linear',
-          position: 'left',
-          ticks: {
-            max: 0.5,
-            min: -0.5
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Score',
-            // fontStyle: 'bold',
-            fontSize: 20
-          }
-        }, {
-          id: 'Magnitude',
-          type: 'linear',
-          position: 'right',
-          ticks: {
-            beginAtZero: true,
-            stepSize: 2.4,
-            max: 12,
-            min: -12
-          },
-          scaleLabel: {
-            display: true,
-            labelString: 'Magnitude',
-            // fontStyle: 'bold',
-            fontSize: 20
-          }
-        }]
-      }
-    }
-  });
 }
 
 function createScoreChart(chart, data) {
