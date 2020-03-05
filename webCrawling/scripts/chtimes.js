@@ -2,21 +2,15 @@ require('dotenv').config();
 const email = process.env.EMAIL;
 const request = require('request');
 const cheerio = require('cheerio');
+const moment = require('moment');
 const func = require('./webCrawler/webCrawler_func');
 const db = require('./webCrawler/webCrawler_db');
 const nodejieba = require("nodejieba");
-const nodemailer = require('nodemailer');
 const cityList = require('./webCrawler/localName');
-
+const exceptKeywords = require('./webCrawler/exceptKeywords');
 nodejieba.load({ userDict: 'scripts/similarity/dict2.txt' });
 
-let exceptKeywords = [
-  '中央社',
-  '中常委',
-  '中時電子報',
-  'CTWANT'
-]
-
+// 分析新聞
 function chtimes(url) {
   let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
@@ -65,25 +59,7 @@ function chtimes(url) {
     })
   })
 }
-
-async function crawler(host, number) {
-  try {
-    let urls = await func.getChtimesUrl(host, number);
-    for (let i = 0; i < urls.length; i++) {
-      if (urls[i] != '') {
-        let checkUrlResult = await db.checkUrl(urls[i]);
-        if (checkUrlResult.length == 0) {
-          chtimes(urls[i]);
-        } else {
-          console.log('this news has exsist: ', urls[i])
-        }
-      }
-    }
-  } catch (e) {
-    console.log('err from crawler', e)
-  }
-}
-
+// 爬近期新聞
 async function webCrawlingNew(host) {
   let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   try {
@@ -140,7 +116,7 @@ async function webCrawlingNew(host) {
     func.sendEmail(email, err);
   }
 }
-
+// 爬歷史新聞
 async function webCrawlingAll(host) {
   let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   try {
