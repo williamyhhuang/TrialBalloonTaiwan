@@ -6,6 +6,9 @@ const request = require('request');
 const cheerio = require('cheerio');
 nodejieba.load({ userDict: './scripts/similarity/dict2.txt' });
 
+// 如果資料庫的記者名字因為該記者在新增文章時的人為錯誤
+// 可以先砍掉資料庫的 reporter 及 reporter_has_news 的兩張表
+// 用此方程式重建 reporter 及 reporter_has_news 兩張表
 async function updateReporter() {
   try {
     await ltnUpdate()

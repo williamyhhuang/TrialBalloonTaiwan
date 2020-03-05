@@ -1,5 +1,6 @@
 const mysql = require('../util/mysqlcon');
 const nodejieba = require('nodejieba');
+const moment = require('moment');
 nodejieba.load({ userDict: 'scripts/similarity/dict2.txt' });
 
 
@@ -8,7 +9,7 @@ function getArticle() {
     let sql = `SELECT * FROM article;`;
     mysql.query(sql, function (err, result) {
       if (err) {
-        reject('err from getting article of updateTokenize.js');
+        reject('Error from getting article of updateTokenize.js');
       }
       resolve(result);
     })
@@ -16,6 +17,7 @@ function getArticle() {
 }
 
 async function updateTokenize() {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   try {
     let getArticleResult = await getArticle();
 
@@ -35,7 +37,7 @@ async function updateTokenize() {
 
       mysql.query(sql, [tokenize, id, news_url], function (err, result) {
         if (err) {
-          console.log(err)
+          console.log(t, 'Error from updating tokenize', err)
         } else {
           if (i == getArticleResult.length - 1) {
             console.log('update tokenize is done');
@@ -50,12 +52,3 @@ async function updateTokenize() {
 }
 
 module.exports = updateTokenize;
-
-
-
-
-
-
-
-
-// module.exports = updateTokenize;

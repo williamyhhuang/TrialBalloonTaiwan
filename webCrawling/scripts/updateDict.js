@@ -1,12 +1,14 @@
+// 更新斷詞字典用
 const mysql = require('../util/mysqlcon');
+const moment = require('moment');
 const fs = require('fs');
 
 function getKeyword() {
   return new Promise((resolve, reject) => {
-    let sql = `SELECT * FROM keyword WHERE add_in_dict='no';`;
+    let sql = `SELECT * FROM keyword WHERE add_in_dict=?;`;
     let keywords = [];
     let id = [];
-    mysql.query(sql, function (err, result) {
+    mysql.query(sql, ['no'], function (err, result) {
       if (err) throw err;
       for (let i = 0; i < result.length; i++) {
         keywords.push(result[i].keyword);
@@ -44,10 +46,8 @@ function getDict() {
       let k = [];
       let key = {};
       for (let i = 0; i < kArray.length; i++) {
-        // let key = kArray[i].split(' ')[0];
         let title = kArray[i].split(' ')[0];
         key[title] = kArray[i].split(' ');
-        // k.push(key);
         if (i == kArray.length - 1) {
           resolve(key);
         }
@@ -56,6 +56,7 @@ function getDict() {
   })
 }
 async function updateDict() {
+  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
   try {
     // 讀進斷詞字典
     let keyInDict = await getDict();
@@ -94,19 +95,19 @@ async function updateDict() {
     // 將新增後的字典寫回進字典txt裡
     fs.writeFile('./scripts/similarity/dict2.txt', newDict, 'utf8', function (err) {
       if (err) {
-        console.log(err)
+        console.log(t, 'Error from writing dict', err)
       }
     })
 
     // 更新keyword table的加入字典欄
     for (let i = 0; i < id.length; i++) {
-      let sql = `UPDATE keyword SET add_in_dict='yes' WHERE id=${id[i]};`;
-      mysql.query(sql, function (err, result) {
+      let sql = `UPDATE keyword SET add_in_dict=? WHERE id=?;`;
+      mysql.query(sql, ['yes', id[i]], function (err, result) {
         if (err) {
-          console.log(err)
+          console.log(t, 'Error from updating keyword', err)
         } else {
           if (i == id.length - 1) {
-            console.log('update keyword dict is done');
+            console.log(t, 'Update keyword dict is done');
           }
         }
       })
@@ -117,6 +118,4 @@ async function updateDict() {
   }
 }
 
-// updateDict()
 module.exports = updateDict;
-
