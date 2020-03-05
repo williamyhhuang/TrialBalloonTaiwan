@@ -22,7 +22,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - "./webCrawling/sql:/data"
-      - "./init_mysql:/docker-entrypoint-initdb.d/"
+      # - "./init_mysql:/docker-entrypoint-initdb.d/"
   tbt:
     restart: always
     container_name: tbt_web
