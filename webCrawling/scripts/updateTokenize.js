@@ -40,14 +40,13 @@ async function updateTokenize() {
           console.log(t, 'Error from updating tokenize', err)
         } else {
           if (i == getArticleResult.length - 1) {
-            console.log('update tokenize is done');
+            console.log(t, 'Update tokenize is done');
           }
         }
       })
     }
-
-  } catch (e) {
-    console.log(e)
+  } catch (err) {
+    console.log(err)
   }
 }
 
