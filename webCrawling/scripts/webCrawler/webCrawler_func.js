@@ -2,14 +2,15 @@
 const language = require('@google-cloud/language');
 // Creates a client
 const client = new language.LanguageServiceClient();
+require('dotenv').config();
 const request = require('request');
 const cheerio = require('cheerio');
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 const db = require('./webCrawler_db');
 const nodejieba = require('nodejieba');
-const gmail = require('./gmail');
 const nodemailer = require('nodemailer')
+const moment = require('moment');
 nodejieba.load({ userDict: 'scripts/similarity/dict.txt' });
 
 
@@ -328,12 +329,12 @@ function sendEmail(email, err) {
     port: 587,
     secure: false,
     auth: {
-      user: gmail.user,
-      pass: gmail.password
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASSWORD
     }
   })
   const mailOptions = {
-    from: gmail.user,
+    from: process.env.GMAIL_USER,
     to: email,
     subject: 'TBT爬蟲出現問題',
     text: 'TBT爬蟲程式出現問題，請前往查看 \n' + err
