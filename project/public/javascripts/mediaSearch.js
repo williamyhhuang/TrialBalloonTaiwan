@@ -13,10 +13,13 @@ let time = new Date(period)
 
 if (period < 0) {
   window.alert('結束日期須大於開始日期');
-  window.location = `${location.protocol}//${location.host}/news`;
+  window.location = `${location.protocol}//${location.host}/media`;
 } else if (time > sixMonth) {
   window.alert('查詢區間須小於六個月');
-  window.location = `${location.protocol}//${location.host}/news`;
+  window.location = `${location.protocol}//${location.host}/media`;
+} else if (moment(start).isValid() == false || moment(end).isValid() == false) {
+  window.alert('日期格式錯誤');
+  window.location = `${location.protocol}//${location.host}/media`;
 }
 
 fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start=${start}&end=${end}`)
@@ -66,8 +69,22 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
       magDiv.className = 'magDiv';
       chartScore.className = 'chart';
       chartMag.className = 'chart';
-      scoreDiv.appendChild(chartScore);
-      magDiv.appendChild(chartMag);
+      // 新增提示
+      let scoreMark = document.createElement('div');
+      scoreMark.className='qMark'
+      scoreMark.innerHTML = '?';
+      let scoreHint = document.createElement('div');
+      scoreHint.className = 'hint';
+      scoreHint.innerHTML = '<p style="margin: 5px;">Score : 範圍介於 -1.0 和 1.0 之間，可反映文字的整體情緒傾向。</p>'
+      let magMark = document.createElement('div');
+      magMark.className='qMark'
+      magMark.innerHTML = '?';
+      let magHint = document.createElement('div');
+      magHint.className = 'hint';
+      magHint.innerHTML = '<p style="margin: 5px;">Magnitude : 範圍介於 0.0 和 +inf 之間，表示文字的整體情緒強度。</p>'
+      append(scoreDiv, chartScore, scoreMark, scoreHint);
+      append(magDiv, chartMag, magMark, magHint);
+
       container.appendChild(scoreDiv);
       container.appendChild(magDiv);
       content.appendChild(container);
@@ -75,44 +92,42 @@ fetch(`${location.protocol}//${location.host}/api/media?keyword=${keyword}&start
       let myScoreChart = createScoreChart(chartScore, month, cna, chtimes, ltn);
       let myMagChart = createMagChart(chartMag, month, cna, chtimes, ltn);
       // 數據切換
-      let but = document.createElement('div');
-      but.className = 'change';
-      but.innerHTML = '切換為日期';
-      but.style.cursor = 'pointer';
+      let switchBtn = document.createElement('div');
+      switchBtn.className = 'change';
+      switchBtn.innerHTML = '切換為日期';
+      switchBtn.style.cursor = 'pointer';
       let check = false;
-      but.addEventListener('click', function () {
-        let month = Object.keys(data.result.cna[0]);
-        let cna = categorizeData(data.result.cna[0]);
-        let chtimes = categorizeData(data.result.chtimes[0]);
-        let ltn = categorizeData(data.result.ltn[0]);
-        let date = Object.keys(data.result.cna[1]);
-        let cna2 = categorizeData(data.result.cna[1]);
-        let chtimes2 = categorizeData(data.result.chtimes[1]);
-        let ltn2 = categorizeData(data.result.ltn[1]);
+      switchBtn.addEventListener('click', function () {
+        let month = data.monthSet
+        let cnaAsMonth = categorizeData(data.result.cna[0]);
+        let chtimesAsMonth = categorizeData(data.result.chtimes[0]);
+        let ltnAsMonth = categorizeData(data.result.ltn[0]);
+        let date = data.dateSet;
+        let cnaAsDate = categorizeData(data.result.cna[1]);
+        let chtimesAsDate = categorizeData(data.result.chtimes[1]);
+        let ltnAsDate = categorizeData(data.result.ltn[1]);
 
         if (check == false) {
-          but.innerHTML = '切換為月份';
+          switchBtn.innerHTML = '切換為月份';
           check = true;
-          changeScoreChart(myScoreChart, date, cna2, chtimes2, ltn2, true);
-          changeMagChart(myMagChart, date, cna2, chtimes2, ltn2, true);
+          changeScoreChart(myScoreChart, date, cnaAsDate, chtimesAsDate, ltnAsDate, true);
+          changeMagChart(myMagChart, date, cnaAsDate, chtimesAsDate, ltnAsDate, true);
           changeChartStyle(myScoreChart, true);
           changeChartStyle(myMagChart, true);
         } else {
-          but.innerHTML = '切換為日期';
+          switchBtn.innerHTML = '切換為日期';
           check = false;
-          changeScoreChart(myScoreChart, month, cna, chtimes, ltn, false);
-          changeMagChart(myMagChart, month, cna, chtimes, ltn, false);
+          changeScoreChart(myScoreChart, month, cnaAsMonth, chtimesAsMonth, ltnAsMonth, false);
+          changeMagChart(myMagChart, month, cnaAsMonth, chtimesAsMonth, ltnAsMonth, false);
           changeChartStyle(myScoreChart, false);
           changeChartStyle(myMagChart, false);
         }
       })
-      content.appendChild(but);
-      // document.body.appendChild(but);
+      content.appendChild(switchBtn);
       // 參數說明
       let instance = document.createElement('div');
       instance.id = 'instance';
       instance.innerHTML = '<h2>分析值說明 : </h2><ul><li>上述圖表所顯示的資訊為當天/月關於該關鍵字平均每篇新聞之分析值。</li><li>Score : 範圍介於 -1.0 (負面) 和 1.0 (正面) 之間，可反映文字的整體情緒傾向。</li><li>Magnitude : 表示文字的整體情緒強度，介於 0.0 和 +inf 之間。只要文字內容出現情緒用字都會提高文字的 magnitude 值。</li><li>若該日期之 score 及 magnitude 值皆為零，極有可能當天該報社/記者沒有相關關鍵字的新聞。</li><li>詳細說明請參考<a href="https://cloud.google.com/natural-language/docs/basics?hl=zh-tw"> GOOGLE - NLP</a></li></ul>';
-      // document.body.appendChild(instance);
       content.appendChild(instance);
       // 資料來源
       let source = document.createElement('div');
@@ -164,7 +179,7 @@ function seperateData(data) {
 // 載入動畫 
 function loading(data) {
   if (data != undefined) {
-    document.getElementById('loader').style.display = 'none';
+    document.getElementById('loader_div').style.display = 'none';
   }
 }
 // 將資料照月份/日期分類 

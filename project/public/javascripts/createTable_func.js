@@ -78,6 +78,7 @@ function createTableTitle_date(date, name) {
     theArgs.forEach(el => {
       div.appendChild(el)
     })
+    return div;
   }
   // 展開按鈕
   function spreadBtn(change, tableId){

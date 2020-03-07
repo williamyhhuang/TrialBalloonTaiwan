@@ -17,6 +17,9 @@ if (period < 0) {
 } else if (time > threeMonth) {
   window.alert('查詢區間須小於三個月');
   window.location = `${location.protocol}//${location.host}/news`;
+} else if (moment(start).isValid() == false || moment(end).isValid() == false) {
+  window.alert('日期格式錯誤');
+  window.location = `${location.protocol}//${location.host}/news`;
 }
 
 fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=${start}&end=${end}`)
@@ -25,11 +28,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
   })
   .then(function (data) {
     window.onload = loading(data);
-    function loading(data) {
-      if (data != undefined) {
-        document.getElementById('loader').style.display = 'none';
-      }
-    }
+
     let content = document.getElementById('content');
     let hr = document.getElementById('hr');
     hr.innerHTML = '<hr>';
@@ -51,36 +50,55 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       content.appendChild(error);
 
     } else {
-      let bigDiv = document.createElement('div');
-      bigDiv.id = 'bigDiv';
-      let bigLeftDiv = document.createElement('div');
-      bigLeftDiv.id = 'bigLeftDiv';
-      let bigRightDiv = document.createElement('div');
-      bigRightDiv.id = 'bigRightDiv';
+      let mainDiv = document.createElement('div');
+      mainDiv.id = 'newsMainDiv';
+      let leftDiv = document.createElement('div');
+      leftDiv.id = 'newsLeftDiv';
+      let rightDiv = document.createElement('div');
+      rightDiv.id = 'newsRightDiv';
       // 圖表div建立
       let container = document.createElement('div');
       container.className = 'chart-container';
-      let chartScore = document.createElement('canvas');
-      let chartMag = document.createElement('canvas');
-      chartScore.className = 'chart';
-      chartMag.className = 'chart';
-      container.appendChild(chartScore);
-      container.appendChild(chartMag);
+      let scoreChartDiv = document.createElement('div');
+      let magChartDiv = document.createElement('div');
+      scoreChartDiv.style.position = 'relative';
+      magChartDiv.style.position = 'relative';
 
-      let myScoreChart = createScoreChart(chartScore, data.result[0]);
-      let myMagChart = createMagChart(chartMag, data.result[0]);
-      bigLeftDiv.appendChild(container);
+      // 建立提示
+      let scoreMark = document.createElement('div');
+      hintStyle(scoreMark, 'qMark', '?', '5px', '5px');
+      let scoreHint = document.createElement('div');
+      let scoreText = '<p style="margin: 5px;">Score : 範圍介於 -1.0 和 1.0 之間，可反映文字的整體情緒傾向。</p>'
+      hintStyle(scoreHint, 'hint', scoreText, '15px', '15px');
+      let magMark = document.createElement('div');
+      hintStyle(magMark, 'qMark', '?', '5px', '10px');
+      let magHint = document.createElement('div');
+      let magText = '<p style="margin: 5px;">Magnitude : 範圍介於 0.0 和 +inf 之間，表示文字的整體情緒強度。</p>';
+      hintStyle(magHint, 'hint', magText, '15px', '20px');
+      let scoreChart = document.createElement('canvas');
+      let magChart = document.createElement('canvas');
+      scoreChart.className = 'chart';
+      magChart.className = 'chart';
+      append(scoreChartDiv, scoreChart, scoreMark, scoreHint);
+      append(magChartDiv, magChart, magMark, magHint);
+
+      container.appendChild(scoreChartDiv);
+      container.appendChild(magChartDiv);
+
+      let myScoreChart = createScoreChart(scoreChart, data.result[0]);
+      let myMagChart = createMagChart(magChart, data.result[0]);
+      leftDiv.appendChild(container);
       // 參數說明
       let instance = document.createElement('div');
       instance.id = 'instance';
       instance.innerHTML = '<h2>分析值說明 : </h2><ul><li>Score : 範圍介於 -1.0 (負面) 和 1.0 (正面) 之間，可反映文字的整體情緒傾向。</li><li>Magnitude : 表示文字的整體情緒強度，介於 0.0 和 +inf 之間。只要文字內容出現情緒用字都會提高文字的 magnitude 值。</li><li>詳細說明請參考<a href="https://cloud.google.com/natural-language/docs/basics?hl=zh-tw"> GOOGLE - NLP</a></li></ul>';
-      bigLeftDiv.appendChild(instance);
-
+      leftDiv.appendChild(instance);
+      
+      // 表格div建立
       let newsTitle = document.createElement('div');
       newsTitle.id = 'newsTitle';
       newsTitle.innerHTML = '<h2>新聞來源 : </h2>';
-      bigRightDiv.appendChild(newsTitle);
-      // 表格div建立
+      rightDiv.appendChild(newsTitle);
       let name = ['報社', '時間', '記者', '標題', '新聞連結', '情緒分析 Score', '情緒分析 Magnitude'];
       let chtimes = Object.values(data.result[0].chtimes);
       let cna = Object.values(data.result[0].cna);
@@ -88,7 +106,7 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
       let table = document.createElement('div');
       table.className = 'newsTable';
       createTable(['cat', 'chtimes', 'cna', 'ltn'], [name, chtimes, cna, ltn], table);
-      bigRightDiv.appendChild(table);
+      rightDiv.appendChild(table);
 
       // 推薦新聞
       let recommendTitle = document.createElement('div');
@@ -106,22 +124,37 @@ fetch(`${location.protocol}//${location.host}/api/news?keyword=${keyword}&start=
         let text = document.createTextNode(data.result[i].cna.title);
         subDiv.appendChild(text);
         subDiv.addEventListener('click', function () {
-
           changeScoreChart(myScoreChart, data.result[i]);
           changeMagChart(myMagChart, data.result[i]);
           changeTable(['chtimes', 'cna', 'ltn'], [chtimes, cna, ltn], table);
         });
         recommend.appendChild(subDiv);
       }
-      bigRightDiv.appendChild(recommendTitle);         
-      bigRightDiv.appendChild(recommend);
-      bigDiv.appendChild(bigLeftDiv);
-      bigDiv.appendChild(bigRightDiv);
-      content.appendChild(bigDiv);
+      rightDiv.appendChild(recommendTitle);
+      rightDiv.appendChild(recommend);
+      mainDiv.appendChild(leftDiv);
+      mainDiv.appendChild(rightDiv);
+      content.appendChild(mainDiv);
 
     }
   })
 
+////// 以下為 function //////
+
+// 問號提示的style
+function hintStyle(div, className, innerHTML, styleRight, styleTop) {
+  div.className = className;
+  div.innerHTML = innerHTML;
+  div.style.right = styleRight;
+  div.style.top = styleTop;
+}
+// 載入動畫 
+function loading(data) {
+  if (data != undefined) {
+    document.getElementById('loader_div').style.display = 'none';
+  }
+}
+// 新增新聞表
 function createTable(media, mediaValue, table) {
   for (let i = 0; i < media.length; i++) {
     let div = document.createElement('div');
@@ -150,7 +183,6 @@ function createTable(media, mediaValue, table) {
     table.appendChild(div)
   }
 }
-
 function changeTable(media, mediaValue, table) {
   for (let i = 0; i < media.length; i++) {
     let elements = document.getElementsByClassName(media[i]);
@@ -184,7 +216,7 @@ function changeTable(media, mediaValue, table) {
     table.appendChild(div)
   }
 }
-
+// 創建圖表
 function createScoreChart(chart, data) {
   return new Chart(chart, {
     type: 'bar',
@@ -235,13 +267,12 @@ function createScoreChart(chart, data) {
     }
   });
 }
-
 function createMagChart(chart, data) {
   return new Chart(chart, {
     type: 'bar',
     data: {
       labels: ['中時電子報', '中央社', '自由電子報'],
-      datasets: [ {
+      datasets: [{
         label: 'Magnitude',
         yAxisID: 'Magnitude',
         data: [Number(data.chtimes.magnitude).toFixed(2), Number(data.cna.magnitude).toFixed(2), Number(data.ltn.magnitude).toFixed(2)],
@@ -287,12 +318,11 @@ function createMagChart(chart, data) {
     }
   });
 }
-
+// 切換圖表
 function changeScoreChart(chart, data) {
   chart.data.datasets[0].data = [Number(data.chtimes.score).toFixed(2), Number(data.cna.score).toFixed(2), Number(data.ltn.score).toFixed(2)];
   chart.update()
 }
-
 function changeMagChart(chart, data) {
   chart.data.datasets[0].data = [Number(data.chtimes.magnitude).toFixed(2), Number(data.cna.magnitude).toFixed(2), Number(data.ltn.magnitude).toFixed(2)];
   chart.update()

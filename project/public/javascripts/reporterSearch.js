@@ -17,10 +17,13 @@ let time = new Date(period)
 
 if (period < 0) {
   window.alert('結束日期須大於開始日期');
-  window.location = `${location.protocol}//${location.host}/news`;
+  window.location = `${location.protocol}//${location.host}/reporter`;
 } else if (time > sixMonth) {
   window.alert('查詢區間須小於六個月');
-  window.location = `${location.protocol}//${location.host}/news`;
+  window.location = `${location.protocol}//${location.host}/reporter`;
+} else if (moment(start).isValid() == false || moment(end).isValid() == false) {
+  window.alert('日期格式錯誤');
+  window.location = `${location.protocol}//${location.host}/reporter`;
 }
 
 fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&reporter1=${reporter1}&media2=${media2}&reporter2=${reporter2}&keyword=${keyword}&start=${start}&end=${end}`)
@@ -72,8 +75,22 @@ fetch(`${location.protocol}//${location.host}/api/reporter?media1=${media1}&repo
       magDiv.className = 'magDiv';
       scoreChart.className = 'chart';
       magChart.className = 'chart';
-      scoreDiv.appendChild(scoreChart);
-      magDiv.appendChild(magChart);
+      // 新增提示
+      let scoreMark = document.createElement('div');
+      scoreMark.className='qMark'
+      scoreMark.innerHTML = '?';
+      let scoreHint = document.createElement('div');
+      scoreHint.className = 'hint';
+      scoreHint.innerHTML = '<p style="margin: 5px;">Score : 範圍介於 -1.0 和 1.0 之間，可反映文字的整體情緒傾向。</p>'
+      let magMark = document.createElement('div');
+      magMark.className='qMark'
+      magMark.innerHTML = '?';
+      let magHint = document.createElement('div');
+      magHint.className = 'hint';
+      magHint.innerHTML = '<p style="margin: 5px;">Magnitude : 範圍介於 0.0 和 +inf 之間，表示文字的整體情緒強度。</p>'
+      append(scoreDiv, scoreChart, scoreMark, scoreHint);
+      append(magDiv, magChart, magMark, magHint);
+
       container.appendChild(scoreDiv);
       container.appendChild(magDiv);
       content.appendChild(container);
@@ -167,7 +184,7 @@ function seperateData(data) {
 // 載入動畫
 function loading(data) {
   if (data != undefined) {
-    document.getElementById('loader').style.display = 'none';
+    document.getElementById('loader_div').style.display = 'none';
   }
 }
 // 將資料照月份/日期分類

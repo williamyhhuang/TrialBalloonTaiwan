@@ -3,7 +3,7 @@ extends layout
 block content
   script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js")
   script(src="/javascripts/newsSearch.js")
-
+  script(src="/javascripts/createTable_func.js")
   div(id='hr')
   form(class='re_research')
     div(class='input')
@@ -16,5 +16,6 @@ block content
           p(style='margin:0px 10px 0px 0px;') ~
           input(type="date" id='end_date' name='end'  required) 
     button(type='button' id='search' style='margin: 10px auto;' onclick='searchNews()') 重新搜尋
-  div(id='loader')
+  div(id='loader_div' style='height:calc(100vh - 80px - 80px - 163px)')
+    div(id='loader')
   div(id='content')
