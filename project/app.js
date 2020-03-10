@@ -1,37 +1,37 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var newsRouter = require('./routes/news')
-var mediaRouter = require('./routes/media')
-var reporterRouter = require('./routes/reporter')
-var newsSearchRouter = require('./routes/newsSearch')
-var mediaSearchRouter = require('./routes/mediaSearch')
-var reporterSearchRouter = require('./routes/reporterSearch')
-var newsApiRouter = require('./routes/api/newsApi')
-var mediaApiRouter = require('./routes/api/mediaApi')
-var reporterApiRouter = require('./routes/api/reporterApi');
-var selectReporterApiRouter = require('./routes/api/selectReporterApi');
-var homeRouter = require('./routes/home');
-var aboutRouter = require('./routes/about');
-var app = express();
-var mysql = require('./util/mysqlcon');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const newsRouter = require('./routes/news');
+const mediaRouter = require('./routes/media');
+const reporterRouter = require('./routes/reporter');
+const newsSearchRouter = require('./routes/newsSearch');
+const mediaSearchRouter = require('./routes/mediaSearch');
+const reporterSearchRouter = require('./routes/reporterSearch');
+const newsApiRouter = require('./routes/api/newsApi');
+const mediaApiRouter = require('./routes/api/mediaApi');
+const reporterApiRouter = require('./routes/api/reporterApi');
+const selectReporterApiRouter = require('./routes/api/selectReporterApi');
+const homeRouter = require('./routes/home');
+const aboutRouter = require('./routes/about');
+const app = express();
+const mysql = require('./util/mysqlcon');
 
-mysql.getConnection(function(err, connect){
-  if (err){
-    console.log('mysql is not connected')
-  }else{
-    console.log('mysql connected')
+mysql.getConnection(function(err, connect) {
+  if (err) {
+    console.log('mysql is not connected');
+  } else {
+    console.log('mysql connected');
   }
-})
+});
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -50,12 +50,12 @@ app.use('/api/reporter', reporterApiRouter);
 app.use('/api/selectReporter', selectReporterApiRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

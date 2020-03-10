@@ -7,9 +7,9 @@ html
     script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js")
   body
     div(class='header')
-      div(style='display: flex; align-items: baseline; ')
+      div(class='header_logo')
         i(class="twicon-main-island" style='font-size: 40px;')
-        div(id='home' style='font-size: 30px; margin-left:10px; font-weight: bold; color:#3C3C3C;' onclick='redirectHome()') Trial Balloon Taiwan
+        div(id='home' onclick='redirectHome()') Trial Balloon Taiwan
       div(class='categories')
         div(class='category' id='cat_news' onclick='redirectNews()') 新聞比一比
         div(class='category' id='cat_media' onclick='redirectMedia()') 報社比一比

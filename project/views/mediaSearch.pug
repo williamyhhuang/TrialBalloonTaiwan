@@ -7,18 +7,18 @@ block content
   script(src="/javascripts/createTable_func.js")
 
   div(id='hr')
-  form(class='re_research')
+  form(class='media_research')
     div(class='input')
-      div(style='display:flex;font-size:20px;margin-left:20px; width: 46%') 
+      div(class='media_keyword') 
         div 關鍵字 :
         input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格，例如 : 韓國瑜 火鍋' required)
       div(id='date_input')
-        div(id='start_date_div') 搜尋日期 :
+        div(id='media_start_date_div') 搜尋日期 :
           input(type="date" id='start_date' name='start' required)
-          p(style='margin:0px 10px 0px 0px;') ~
+          p ~
           input(type="date" id='end_date' name='end'  required)
     //- div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月 
-    button(type='button' id='search' style='margin: 10px auto;' onclick='searchMedia()') 重新搜尋  
-  div(id='loader_div' style='height:calc(100vh - 80px - 80px - 163px)')
+    button(type='button' id='search' onclick='searchMedia()') 重新搜尋  
+  div(id='media_loader_div')
     div(id='loader')
   div(id='content')

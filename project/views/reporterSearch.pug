@@ -6,35 +6,34 @@ block content
   script(src="/javascripts/reporterSearch.js")
   script(src="/javascripts/createTable_func.js")
   div(id='hr')
-  form(class='re_research' style='flex-direction: column; flex-wrap: unset; height: 120px')
-    div(class='input' style='height: 40px;')
-      div(id='reporter_media' style='margin: 5px;')
+  form(class='reporter_research')
+    div(class='input')
+      div(id='reporter_media')
         div(style='display: flex')
-          div(id='one_reporter_media' style='margin-left: 10px;')
-            div(id='media' style='font-size:14px') 
-            div(style='font-size: 14px ;width: 90px; line-height: 28px;') 報社 - 記者 :
+          div(id='research_one_reporter_media')
+            div(id='research_media') 報社 - 記者 :
             select(id='selectMedia1' onchange='change("selectMedia1","selectReporter1")')
               option(value='cna' selected) 中央社
               option(value='chtimes') 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter1')
-            p(style='margin:0px; font-size: 14px; line-height:30px;') VS 
+            p VS 
             select(id='selectMedia2' onchange='change("selectMedia2","selectReporter2")')
               option(value='cna') 中央社
               option(value='chtimes' selected) 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter2') 
-      div(style='display:flex;font-size:14px;') 
-        div(style='margin-left: unset; width: 60px') 關鍵字 :
-        input(type="text" id='input' name='input' style='font-size: 14px; width:150px; margin-left: 0px;' placeholder='輸入多個關鍵字請空格' required)
+      div(id='reporter_keyword_div') 
+        div 關鍵字 :
+        input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格' required)
       div(id='date_input')
-        div(id='start_date_div' style='font-size: 14px; margin-left:unset;') 
-          div(style='width: 65px') 查詢區間 :
-          input(type="date" id='start_date' style='font-size: 14px; width: 140px;' name='start' required)
-          p(style='margin:0px;') ~
-          input(type="date" id='end_date' style='font-size: 14px; width: 140px;' name='end'  required)
+        div(id='research_reporter_start_date_div') 
+          div(style='') 查詢區間 :
+          input(type="date" id='start_date' name='start' required)
+          p ~
+          input(type="date" id='end_date' name='end'  required)
     //- div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月  
-    button(type='button' id='search' style='margin: 10px auto;' onclick='searchReporter()') 重新搜尋 
-  div(id='loader_div' style='height:calc(100vh - 80px - 80px - 163px)')
+    button(type='button' id='search' onclick='searchReporter()') 重新搜尋 
+  div(id='reporter_loader_div')
     div(id='loader')
   div(id='content')

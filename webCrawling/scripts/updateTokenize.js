@@ -1,25 +1,26 @@
+/* eslint-disable require-jsdoc */
 const mysql = require('../util/mysqlcon');
 const nodejieba = require('nodejieba');
 const moment = require('moment');
-nodejieba.load({ userDict: 'scripts/similarity/dict2.txt' });
+nodejieba.load({userDict: 'scripts/similarity/dict2.txt'});
 
 
 function getArticle() {
   return new Promise((resolve, reject) => {
-    let sql = `SELECT * FROM article;`;
-    mysql.query(sql, function (err, result) {
+    const sql = `SELECT * FROM article;`;
+    mysql.query(sql, function(err, result) {
       if (err) {
-        reject('Error from getting article of updateTokenize.js');
+        reject(err);
       }
       resolve(result);
-    })
-  })
+    });
+  });
 }
 
 async function updateTokenize() {
-  let t = moment().format('YYYY-MM-DD-HH:mm:ss');
+  const t = moment().format('YYYY-MM-DD-HH:mm:ss');
   try {
-    let getArticleResult = await getArticle();
+    const getArticleResult = await getArticle();
 
     // 更新新聞斷詞
     for (let i = 0; i < getArticleResult.length; i++) {
@@ -30,23 +31,23 @@ async function updateTokenize() {
 
     // 更新資料庫的新聞斷詞
     for (let i = 0; i < getArticleResult.length; i++) {
-      let tokenize = getArticleResult[i].tokenize;
-      let id = getArticleResult[i].id;
-      let news_url = getArticleResult[i].news_url;
-      let sql = `UPDATE article SET tokenize=? WHERE id=? AND news_url=?`;
+      const tokenize = getArticleResult[i].tokenize;
+      const id = getArticleResult[i].id;
+      const newsUrl = getArticleResult[i].news_url;
+      const sql = `UPDATE article SET tokenize=? WHERE id=? AND news_url=?`;
 
-      mysql.query(sql, [tokenize, id, news_url], function (err, result) {
+      mysql.query(sql, [tokenize, id, newsUrl], function(err, result) {
         if (err) {
-          console.log(t, 'Error from updating tokenize', err)
+          console.log(t, 'Error from updating tokenize', err);
         } else {
           if (i == getArticleResult.length - 1) {
             console.log(t, 'Update tokenize is done');
           }
         }
-      })
+      });
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 }
 

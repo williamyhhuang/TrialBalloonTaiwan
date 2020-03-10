@@ -1,8 +1,8 @@
 extends layout
 
 block content
-  div(class='title')
-    h1(id='title') 記者比一比
+  div(class='reporter_title')
+    h1(id='reporter_title') 記者比一比
   form
     div(class='input')
       div(id='reporter_media')
@@ -14,18 +14,18 @@ block content
               option(value='chtimes') 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter1')
-            p(style='margin:0px; line-height:30px;') VS 
+            p(style='') VS 
             select(id='selectMedia2' onchange='change("selectMedia2","selectReporter2")')
               option(value='cna') 中央社
               option(value='chtimes' selected) 中時電子報
               option(value='ltn') 自由電子報
             select(id='selectReporter2') 
-      div(style='display:flex;font-size:20px;margin-left:20px;') 關鍵字 :
+      div(class='reporter_keyword') 關鍵字 :
         input(type="text" id='input' name='input' placeholder='輸入多個關鍵字請空格，例如 : 韓國瑜 火鍋' required)
-      div(id='date_input')
-        div(id='start_date_div') 搜尋日期 :
+      div(id='reporter_date_input')
+        div(id='reporter_start_date_div') 搜尋日期 :
           input(type="date" id='start_date' name='start' required)
-          p(style='margin:0px 10px 0px 0px;') ~
+          p ~
           input(type="date" id='end_date' name='end'  required)
-    div(style='color: red; width:54%; margin: 10px auto; font-size: 16px; text-align: center') * 查詢區間須小於六個月  
+    div(class='reporter_searchtime') * 查詢區間須小於六個月  
     button(type='button' id='search' onclick='searchReporter()') 搜尋 

@@ -1,12 +1,15 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable require-jsdoc */
+/* eslint-disable max-len */
 // 所在頁面上色
-color()
+color();
 
 // 按下 enter 即搜尋
 if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'news') >= 0 || location.href.indexOf(location.protocol + '//' + location.host + '/' + 'search/news') >= 0) {
   // 預設搜尋日期
   document.getElementById('end_date').value = moment().format('YYYY-MM-DD');
-  let search = document.getElementById("input");
-  search.addEventListener("keypress", function (event) {
+  const search = document.getElementById('input');
+  search.addEventListener('keypress', function(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
       document.getElementById('search').click();
@@ -17,8 +20,8 @@ if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'news
 if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'media') >= 0 || location.href.indexOf(location.protocol + '//' + location.host + '/' + 'search/media') >= 0) {
   // 預設搜尋日期
   document.getElementById('end_date').value = moment().format('YYYY-MM-DD');
-  let search = document.getElementById("input");
-  search.addEventListener("keypress", function (event) {
+  const search = document.getElementById('input');
+  search.addEventListener('keypress', function(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
       document.getElementById('search').click();
@@ -31,8 +34,8 @@ if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'repo
   document.getElementById('end_date').value = moment().format('YYYY-MM-DD');
   // 在記者比一比頁面預設記者
   defaultMediaCna();
-  let search = document.getElementById("input");
-  search.addEventListener("keypress", function (event) {
+  const search = document.getElementById('input');
+  search.addEventListener('keypress', function(event) {
     if (event.keyCode === 13) {
       event.preventDefault();
       document.getElementById('search').click();
@@ -40,15 +43,15 @@ if (location.href.indexOf(location.protocol + '//' + location.host + '/' + 'repo
   });
 }
 
-////// 以下為function //////
+// //// 以下為function //////
 function searchNews() {
   let input = document.getElementById('input').value;
-  let start = document.getElementById('start_date').value;
-  let end = document.getElementById('end_date').value;
+  const start = document.getElementById('start_date').value;
+  const end = document.getElementById('end_date').value;
   input = input.split(' ');
-  let period = (new Date(end) - new Date(start));
-  let time = new Date(period)
-  let threeMonth = 7776000000;
+  const period = (new Date(end) - new Date(start));
+  const time = new Date(period);
+  const threeMonth = 7776000000;
 
   if (input == '' || start == '' || end == '') {
     window.alert('請填寫搜尋條件');
@@ -68,11 +71,11 @@ function searchNews() {
 }
 function searchMedia() {
   let input = document.getElementById('input').value;
-  let start = document.getElementById('start_date').value;
-  let end = document.getElementById('end_date').value;
-  let period = (new Date(end) - new Date(start));
-  let time = new Date(period)
-  let sixMonth = 15552000000;
+  const start = document.getElementById('start_date').value;
+  const end = document.getElementById('end_date').value;
+  const period = (new Date(end) - new Date(start));
+  const time = new Date(period);
+  const sixMonth = 15552000000;
 
   if (input == '' || start == '' || end == '') {
     window.alert('請填寫搜尋條件');
@@ -93,15 +96,15 @@ function searchMedia() {
 }
 function searchReporter() {
   let input = document.getElementById('input').value;
-  let media1 = document.getElementById('selectMedia1').value;
-  let media2 = document.getElementById('selectMedia2').value;
-  let reporter1 = document.getElementById('selectReporter1').value;
-  let reporter2 = document.getElementById('selectReporter2').value;
-  let start = document.getElementById('start_date').value;
-  let end = document.getElementById('end_date').value;
-  let period = (new Date(end) - new Date(start));
-  let time = new Date(period)
-  let sixMonth = 15552000000;
+  const media1 = document.getElementById('selectMedia1').value;
+  const media2 = document.getElementById('selectMedia2').value;
+  const reporter1 = document.getElementById('selectReporter1').value;
+  const reporter2 = document.getElementById('selectReporter2').value;
+  const start = document.getElementById('start_date').value;
+  const end = document.getElementById('end_date').value;
+  const period = (new Date(end) - new Date(start));
+  const time = new Date(period);
+  const sixMonth = 15552000000;
 
   if (input == '' || start == '' || end == '') {
     window.alert('請填寫搜尋條件');
@@ -154,60 +157,60 @@ function color() {
 }
 // 切換記者比一比的報社與記者
 function change(media, selectReporter) {
-  let select = document.getElementById(media);
-  let opt = select.options[select.selectedIndex].value;
+  const select = document.getElementById(media);
+  const opt = select.options[select.selectedIndex].value;
   fetch(`${location.protocol}//${location.host}/api/selectReporter`)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      (function reporter(data,opt) {
-        data[opt] = data[opt].sort();
-        let reporter = document.getElementById(selectReporter);
-        while (reporter.firstChild) {
-          reporter.removeChild(reporter.firstChild);
-        }
-        for (let i = 0; i < data[opt].length; i++) {
-          let option = document.createElement('option');
-          option.text = data[opt][i];
-          option.value = data[opt][i];
-          reporter.appendChild(option);
-        }
-      })(data,opt)
-    })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        (function reporter(data, opt) {
+          data[opt] = data[opt].sort();
+          const reporter = document.getElementById(selectReporter);
+          while (reporter.firstChild) {
+            reporter.removeChild(reporter.firstChild);
+          }
+          for (let i = 0; i < data[opt].length; i++) {
+            const option = document.createElement('option');
+            option.text = data[opt][i];
+            option.value = data[opt][i];
+            reporter.appendChild(option);
+          }
+        })(data, opt);
+      });
 }
 // 預設記者比一比的報社為中央社
 function defaultMediaCna() {
   fetch(`${location.protocol}//${location.host}/api/selectReporter?media=cna`)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      data['cna'] = data['cna'].sort();
-      data['chtimes'] = data['chtimes'].sort();      
-      let reporter1 = document.getElementById('selectReporter1');
-      let reporter2 = document.getElementById('selectReporter2');
-      while (reporter1.firstChild) {
-        reporter1.removeChild(reporter1.firstChild);
-      }
-      while (reporter2.firstChild) {
-        reporter2.removeChild(reporter2.firstChild);
-      }
-      for (let i = 0; i < data['cna'].length; i++) {
-        let option1 = document.createElement('option');
-        option1.text = data['cna'][i];
-        option1.value = data['cna'][i];
-        reporter1.appendChild(option1);
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        data['cna'] = data['cna'].sort();
+        data['chtimes'] = data['chtimes'].sort();
+        const reporter1 = document.getElementById('selectReporter1');
+        const reporter2 = document.getElementById('selectReporter2');
+        while (reporter1.firstChild) {
+          reporter1.removeChild(reporter1.firstChild);
+        }
+        while (reporter2.firstChild) {
+          reporter2.removeChild(reporter2.firstChild);
+        }
+        for (let i = 0; i < data['cna'].length; i++) {
+          const option1 = document.createElement('option');
+          option1.text = data['cna'][i];
+          option1.value = data['cna'][i];
+          reporter1.appendChild(option1);
         // let option2 = document.createElement('option');
         // option2.text = data['cna'][i];
         // option2.value = data['cna'][i];
         // reporter2.appendChild(option2);
-      }
-      for (let i =0;i<data['chtimes'].length; i++){
-        let option2 = document.createElement('option');
-        option2.text = data['chtimes'][i];
-        option2.value = data['chtimes'][i];
-        reporter2.appendChild(option2);
-      }
-    })
+        }
+        for (let i =0; i<data['chtimes'].length; i++) {
+          const option2 = document.createElement('option');
+          option2.text = data['chtimes'][i];
+          option2.value = data['chtimes'][i];
+          reporter2.appendChild(option2);
+        }
+      });
 }

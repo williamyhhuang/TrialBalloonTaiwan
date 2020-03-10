@@ -1,4 +1,4 @@
 require('dotenv').config();
 module.exports = {
-    HOST_NAME: process.env.HOST_NAME
-}
+  HOST_NAME: process.env.HOST_NAME,
+};
