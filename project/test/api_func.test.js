@@ -1,4 +1,4 @@
-const func = require('./api_func');
+const func = require('../routes/api/api_func');
 
 test('calcMonth test', () => {
   const start = '2020-01-01';

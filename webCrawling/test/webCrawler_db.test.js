@@ -1,4 +1,4 @@
-const db = require('./webCrawler_db');
+const db = require('../scripts/webCrawler/webCrawler_db');
 
 test('insert data test', () => {
   const data = {
