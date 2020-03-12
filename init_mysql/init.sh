@@ -1,5 +1,5 @@
 echo "create tbt_test schema..."
-mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e"CREATE DATABASE IF NOT EXISTS `tbt_test`;"
+mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e"CREATE DATABASE IF NOT EXISTS 'tbt_test';"
 echo "import tbt data..."
 mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" tbt< /data/tbt_data_20200312.sql
 echo "set mysql_native_password..."
