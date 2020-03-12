@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
@@ -10,29 +11,30 @@ const func = require('./webCrawler_func');
 const cityList = require('./localName');
 const request = require('request');
 const cheerio = require('cheerio');
-nodejieba.load({userDict: './scripts/similarity/dict2.txt'});
+nodejieba.load({ userDict: './scripts/similarity/dict2.txt' });
 
 async function updateReporter() {
   try {
     await ltnUpdate()
-        .then(async () => {
-          console.log('ltn reporter update is done');
-          return cnaUpdate();
-        })
-        .then(async () => {
-          console.log('cna reporter update is done');
-          return chtimesUpdate();
-        })
-        .then(()=>{
-          console.log('chtimes reporter update is done');
-          console.log('all reporter update is done');
-        });
+      .then(async () => {
+        console.log('ltn reporter update is done');
+        return cnaUpdate();
+      })
+      .then(async () => {
+        console.log('cna reporter update is done');
+        return chtimesUpdate();
+      })
+      .then(() => {
+        console.log('chtimes reporter update is done');
+        console.log('all reporter update is done');
+      });
   } catch (e) {
     console.log(e);
   }
 }
 
-module.exports = updateReporter;
+updateReporter();
+// module.exports = updateReporter;
 
 
 // / 以下為用到的function ///
@@ -109,7 +111,7 @@ function chtimesUpdate() {
 function getReporterId(connect, author, media) {
   return new Promise((resolve, reject) => {
     const selectReporterSql = `SELECT id FROM reporter WHERE name = '${author}'`;
-    connect.query(selectReporterSql, function(selectReporterErr, selectReporterResult) {
+    connect.query(selectReporterSql, function (selectReporterErr, selectReporterResult) {
       if (selectReporterErr) {
         console.log(selectReporterErr);
         reject(selectReporterErr);
@@ -124,7 +126,7 @@ function getReporterId(connect, author, media) {
           name: author,
           media: media,
         };
-        connect.query(insertReporterSql, insertReporterPost, function(insertReporterErr, insertReporterResult) {
+        connect.query(insertReporterSql, insertReporterPost, function (insertReporterErr, insertReporterResult) {
           if (insertReporterErr) {
             reject(insertReporterErr);
           }
@@ -150,7 +152,7 @@ function insertReporterNews(connect, reporterId, newsId) {
       reporter_id: reporterId,
       news_id: newsId,
     };
-    connect.query(insertReporterNewsSql, insertReporterNewsPost, function(insertReporterNewsErr, insertReporterNewsResult) {
+    connect.query(insertReporterNewsSql, insertReporterNewsPost, function (insertReporterNewsErr, insertReporterNewsResult) {
       if (insertReporterNewsErr) {
         console.log(insertReporterNewsErr);
         reject(insertReporterNewsErr);
@@ -169,12 +171,12 @@ function update(data) {
 
   return new Promise((resolve, reject) => {
     // 新增至資料庫
-    mysql.getConnection(function(err, connect) {
+    mysql.getConnection(function (err, connect) {
       if (err) {
         console.log(err);
         connect.release();
       }
-      connect.beginTransaction(async function(err) {
+      connect.beginTransaction(async function (err) {
         if (err) {
           console.log('err from beginTransaction', err);
         }
@@ -184,10 +186,10 @@ function update(data) {
             const reporterId = await getReporterId(connect, author[i], media);
             await insertReporterNews(connect, reporterId, id);
           }
-          connect.commit(function(err) {
+          connect.commit(function (err) {
             if (err) {
               console.log('err from commit');
-              connect.rollback(function() {
+              connect.rollback(function () {
                 connect.release();
               });
               console.log('err from commit', err);
@@ -198,7 +200,7 @@ function update(data) {
           });
         } catch (e) {
           console.log('error from transaction', e);
-          connect.rollback(function() {
+          connect.rollback(function () {
             connect.release();
           });
           throw e.message;
@@ -210,7 +212,7 @@ function update(data) {
 
 function dataQuery(sql) {
   return new Promise((resolve, reject) => {
-    mysql.query(sql, function(err, result) {
+    mysql.query(sql, function (err, result) {
       if (err) {
         console.log(err);
       }
@@ -253,6 +255,9 @@ function cna(id, article) {
       author = author.split('、');
       const number = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
       for (let i = 0; i < author.length; i++) {
+        if (author[i].length <= 1) {
+          author[i] = 'cna';
+        }
         if (author[i].length >= 4) {
           author[i] = await func.cnaSelectAuthor(cityList, author[i]);
         }
@@ -281,7 +286,9 @@ function ltn(id, article) {
       let authors = await func.ltnSelectAuthor(cityList, article);
       authors = authors.split('、');
       for (let i = 0; i < authors.length; i++) {
-        if (authors[i].length >= 4) {
+        if (authors[i].length <= 1) {
+          authors[i] = 'ltn';
+        } else if (authors[i].length >= 4) {
           authors[i] = await func.ltnSelectAuthor(cityList, authors[i]);
         }
       }

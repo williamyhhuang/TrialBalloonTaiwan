@@ -1,3 +1,4 @@
+/* eslint-disable space-before-function-paren */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
@@ -21,7 +22,7 @@ function insertNews(connect, media, date, title, url, score, magnitude) {
       score: score,
       magnitude: magnitude,
     };
-    connect.query(sql, post, function(err, result) {
+    connect.query(sql, post, function (err, result) {
       if (err) {
         reject(err);
       }
@@ -46,7 +47,7 @@ function insertArticle(connect, article, url, tokenize) {
       news_url: url,
       tokenize: tokenize,
     };
-    connect.query(sql, post, function(err, result) {
+    connect.query(sql, post, function (err, result) {
       if (err) {
         reject(err);
       }
@@ -64,7 +65,7 @@ function insertKeyword(connect, keyword, newsId) {
       news_id: newsId,
       add_in_dict: 'no',
     };
-    connect.query(sql, post, function(err, result) {
+    connect.query(sql, post, function (err, result) {
       if (err) {
         reject(err);
       }
@@ -76,7 +77,7 @@ function insertKeyword(connect, keyword, newsId) {
 function getReporterId(connect, author, media) {
   return new Promise((resolve, reject) => {
     const sql = `SELECT id FROM reporter WHERE name = ?`;
-    connect.query(sql, [author], function(err, result) {
+    connect.query(sql, [author], function (err, result) {
       if (err) {
         reject(err);
       }
@@ -89,7 +90,7 @@ function getReporterId(connect, author, media) {
           name: author,
           media: media,
         };
-        connect.query(sql, post, function(insertReporterErr, insertReporterResult) {
+        connect.query(sql, post, function (insertReporterErr, insertReporterResult) {
           if (insertReporterErr) {
             reject(insertReporterErr);
           }
@@ -99,7 +100,7 @@ function getReporterId(connect, author, media) {
             return;
           }
           // 清除Redis
-          client.flushdb(function(err, reply) {
+          client.flushdb(function (err, reply) {
             const t = moment().format('YYYY-MM-DD-HH:mm:ss');
             if (err) {
               reject(err);
@@ -122,7 +123,7 @@ function insertReporterNews(connect, reporterId, newsId) {
       reporter_id: reporterId,
       news_id: newsId,
     };
-    connect.query(sql, post, function(err, result) {
+    connect.query(sql, post, function (err, result) {
       if (err) {
         reject(err);
       }
@@ -135,7 +136,7 @@ function checkUrl(url) {
   const t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
     const sql = `SELECT id FROM news WHERE url = ?`;
-    mysql.query(sql, [url], function(err, result) {
+    mysql.query(sql, [url], function (err, result) {
       if (err) {
         reject('error from checking url query');
         console.log(t, 'Error from checkUrl', err);
@@ -150,7 +151,7 @@ function checkUrl(url) {
 function getDbUrl(media) {
   const t = moment().format('YYYY-MM-DD-HH:mm:ss');
   return new Promise((resolve, reject) => {
-    mysql.query(`SELECT url FROM news WHERE media = ? FOR UPDATE`, [media], function(err, result) {
+    mysql.query(`SELECT url FROM news WHERE media = ? FOR UPDATE`, [media], function (err, result) {
       if (err) {
         console.log(t, 'Error from getDbUrl', err);
       }
@@ -178,12 +179,12 @@ function insert(data) {
 
   return new Promise((resolve, reject) => {
     // 新增至資料庫
-    mysql.getConnection(function(err, connect) {
+    mysql.getConnection(function (err, connect) {
       if (err) {
         console.log(t, 'Error from getConnection', err);
         connect.release();
       }
-      connect.beginTransaction(async function(err) {
+      connect.beginTransaction(async function (err) {
         if (err) {
           console.log(t, 'Error from beginTransaction', err);
           connect.release();
@@ -200,21 +201,24 @@ function insert(data) {
                   }
                   for (let i = 0; i < author.length; i++) {
                     author[i] = author[i].trim();
+                    if (author[i].length <= 1) {
+                      author[i] = media;
+                    }
                     const reporterId = await getReporterId(connect, author[i], media);
                     await insertReporterNews(connect, reporterId, newsId);
                   }
                 } catch (err) {
                   console.log(t, err);
-                  connect.rollback(function() {
+                  connect.rollback(function () {
                     connect.release();
                   });
                 }
               })
               .then(() => {
-                connect.commit(function(err) {
+                connect.commit(function (err) {
                   if (err) {
                     console.log(t, 'err from commit', err);
-                    connect.rollback(function() {
+                    connect.rollback(function () {
                       connect.release();
                     });
                   }
@@ -225,7 +229,7 @@ function insert(data) {
               });
         } catch (err) {
           console.log(t, media, 'Error from transaction', err);
-          connect.rollback(function() {
+          connect.rollback(function () {
             connect.release();
           });
         }

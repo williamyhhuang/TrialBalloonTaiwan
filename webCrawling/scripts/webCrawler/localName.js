@@ -61,6 +61,9 @@ const cityList = [
   '桃園機場',
   '梵蒂岡',
   '新德里',
+  '首爾',
+  '上海',
+  '新加坡',
 ];
 
 module.exports = cityList;
