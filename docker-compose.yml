@@ -1,17 +1,5 @@
 version: "3.2"
 services:
-  # nginx:
-  #   image: nginx
-  #   container_name: tbt_nginx
-  #   restart: always
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - "./init_nginx/conf.d:/etc/nginx/conf.d"
-  #     - "/etc/letsencrypt/:/etc/letsencrypt/"
-  #   depends_on:
-  #     - tbt
   redis:
     image: redis
     container_name: redis
@@ -24,7 +12,7 @@ services:
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - "./webCrawling/sql:/data"
-      # - "./init_mysql:/docker-entrypoint-initdb.d/"
+      - "./init_mysql:/docker-entrypoint-initdb.d/"
   tbt:
     restart: always
     container_name: tbt_web
