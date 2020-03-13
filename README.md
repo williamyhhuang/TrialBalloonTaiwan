@@ -1,6 +1,6 @@
 # Trial Balloon Taiwan
 
-Trial Balloon Taiwan ( TBT ) is a news analyzation website. TBT executes web-crawling, and analyzes Taiwan political news by Google NLP API everyday, user can know which media is trying to spin control on Taiwan society and its political standpoint .
+Trial Balloon Taiwan ( TBT ) is a news analysis website. TBT executes web-crawling automatically, and analyzes Taiwan political news by Google NLP API everyday, users can know which media is trying to spin control on public opinion and media's political standpoint in Taiwan.
 
 Website URL : <https://trialballoontw.co>
 
@@ -17,7 +17,7 @@ Website URL : <https://trialballoontw.co>
 
 ## Technologies
 
-### Back-End
+### Backend
 
 - Node.js / Express.js
 - Web Crawler ( cheerio、puppeteer )
@@ -64,11 +64,12 @@ Website URL : <https://trialballoontw.co>
 </p>
 
 - Server side :
-  - When developer finishs commits and push to github, Jenkins is triggered by Github web-hook. Jenkin pulls github code, executes the shell script, rebuild the docker and restart it on EC2 .
-  - Web crawler executes every two hours to ensure the news is up to date .
-  - If something wrong with web-crawling, server will send the email to developer .
+  - When developer finishs commits and push to github, Jenkins is triggered by Github web-hook. Jenkin pulls github code, executes the shell script, rebuild the docker and restart app on EC2.
+  - Automatically execute web crawler every two hours to ensure the information is up-to-date.
+  - Analyze news by Google NLP API and nodejieba, and save the result into database.
+  - If something wrong with web-crawling, server will send the email to developer by nodemailer.
 - Client side :
-  - After receiving requests from client, NGINX forwards requests to the corresponding ports .
+  - After receiving requests from client, NGINX forwards requests to the corresponding ports.
 
 ## Database Schema
 
@@ -79,15 +80,15 @@ Website URL : <https://trialballoontw.co>
 ## Main Features
 
 - News Comparision
-  - Compare the specific event that how the media describes that news .
-  - According to the score and magnitude analyzed by Google NLP API, user can know how the media describe the specific event .
-  - If the news is not that user wants, user can switch to other news and get the relative analysis .
+  - Compare the specific event that how the media describes that news.
+  - According to the score and magnitude analyzed by Google NLP API, user can know how the media describe the specific event.
+  - If the news is not that users want, users can switch to other news and get the relative analysis.
 - Media Comparision
-  - According to the score and magnitude analyzed by Google NLP API, user can know how the media describes the keyword-related news and know the relationship between keyword-related news and time .
-  - User can get every media's news that relate to the specific keywords .
+  - According to the score and magnitude analyzed by Google NLP API, user can know how the media describes the keyword-related news and know the relationship between keyword-related news and time.
+  - User can get every media's news that relate to the specific keywords.
 - Reporter Comparision
-  - According to the score and magnitude analyzed by Google NLP API, user can know how the reporter describes the keyword-related news and know the relationship between keyword-related news and time .
-  - User can get every reporter's news that relate to the specific keywords .
+  - According to the score and magnitude analyzed by Google NLP API, user can know how the reporter describes the keyword-related news and know the relationship between keyword-related news and time.
+  - User can get every reporter's news that relate to the specific keywords.
 
 ## Demonstration
 
