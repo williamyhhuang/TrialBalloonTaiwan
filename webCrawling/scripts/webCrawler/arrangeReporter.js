@@ -33,9 +33,7 @@ async function updateReporter() {
   }
 }
 
-updateReporter();
-// module.exports = updateReporter;
-
+module.exports = updateReporter;
 
 // / 以下為用到的function ///
 
