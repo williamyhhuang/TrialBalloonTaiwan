@@ -106,7 +106,7 @@ Website URL : <https://trialballoontw.co>
 ### Media Comparision
 
 <p align="center">
- <img src="https://i.imgur.com/xnMS3vB.gif" width="800">
+ <img src="https://i.imgur.com/fnkCMa3.gif" width="800">
 </p>
 
 - Uers can spcific the query time, the maximum query time is six months.
