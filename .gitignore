@@ -1,5 +1,8 @@
-/webCrawling/scripts/test.js
+# node modules
 node_modules
+
+# environment variables
 .env
+
+# Google NLP API credentials
 /google_nlp
-artillery.yml
