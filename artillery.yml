@@ -1,0 +1,16 @@
+# This is the loading test script,
+# you can modify the target and url,
+# enter the following command in CLI to run the script:
+# artillery run artillery.yml
+
+config:
+  target: "https://trialballoontw.co"
+  http:
+    pool: 20
+  phases:
+    - duration: 20
+      arrivalRate: 40
+scenarios:
+  - flow:
+    - get:
+        url: "/api/media?keyword=taiwan&start=2020-03-08&end=2020-03-09"
