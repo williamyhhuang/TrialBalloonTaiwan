@@ -21,7 +21,8 @@ Website URL : <https://trialballoontw.co>
 
 - Node.js / Express.js
 - Web Crawler ( cheerio、puppeteer )
-- CI / CD ( Jenkins、Docker )
+- CI / CD ( Jenkins )
+- Docker
 - SSL Certificate ( Let's Encrypt )
 
 ### Front-End
