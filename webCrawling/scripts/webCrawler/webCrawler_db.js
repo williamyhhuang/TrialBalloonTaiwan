@@ -209,9 +209,6 @@ function insert(data) {
                   }
                 } catch (err) {
                   console.log(t, err);
-                  connect.rollback(function () {
-                    connect.release();
-                  });
                 }
               })
               .then(() => {
