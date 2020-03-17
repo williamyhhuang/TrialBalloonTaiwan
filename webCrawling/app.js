@@ -67,16 +67,13 @@ const webCrawlingJob = new CronJob('0 0 */2 * * *', async function() {
   }
 });
 
-// 更新斷詞字典及及資料庫的斷詞欄位(article.tokenize)
+// 更新斷詞字典
 const updateDictJob = new CronJob('0 0 3 * * 1', async function() {
   try {
     await updateDict()
         .then(async () => {
-          return updateTokenize();
-        })
-        .then(async () => {
           const t = moment().format('YYYY-MM-DD-HH:mm:ss');
-          return console.log(t, 'updating dict and tokenize is done');
+          return console.log(t, 'updating dict is done');
         });
   } catch (e) {
     console.log(e);
