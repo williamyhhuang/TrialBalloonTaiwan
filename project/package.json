@@ -7,7 +7,7 @@
     "test": "NODE_ENV=test jest"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.3",
     "compute-cosine-similarity": "^1.0.0",
     "cookie-parser": "~1.4.4",
